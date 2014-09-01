@@ -1,7 +1,9 @@
 body {
 	background: #002B36;
-	padding: 20px 50px;
+	padding: 0px;
 	margin: 0px;
+	color:#9d9d9d;
+	font-family: Helvetica, sans-serif;
 }
 
 /* textarea */
@@ -11,7 +13,7 @@ textarea {
 	border: 0px;
 	color: #fff;
 	padding: 0px;
-	width: 100%;
+	width: 960px;
 	height: 100%;
 	font-family: monospace;
 	outline: none;
@@ -22,15 +24,18 @@ textarea {
 /* the line numbers */
 
 #linenos {
-  color: #7d7d7d;
-	z-index: -1000;
-	position: absolute;
-	top: 20px;
-	left: 0px;
-	width: 30px; /* 30 to get 20 away from box */
+	float:left;
+  	color: #7d7d7d;
+	width: 30px;
 	font-size: 13px;
 	font-family: monospace;
 	text-align: right;
+	margin:20px 5px 0 175px;
+}
+
+#pastebin {
+	float:left;
+	margin:20px 0 0 0;
 }
 
 /* code box when locked */
@@ -38,7 +43,6 @@ textarea {
 #box {
 	padding: 0px;
 	margin: 0px;
-	width: 100%;
 	border: 0px;
 	outline: none;
 	font-size: 13px;
@@ -50,14 +54,19 @@ textarea {
 	background: transparent !important; /* don't hide hastebox */
 }
 
-/* key */
-
-#key {
-	position: fixed;
-	top: 0px;
-	right: 0px;
-	z-index: +1000; /* watch out */
+#sidebar {
+	position:fixed;
+	left:0;
+	top:0;
+	width:170px;
 }
+
+#recent-pastes-title {
+	text-align:center;
+	margin:10px;
+}
+
+/* key (the logo + menu) */
 
 #box1 {
 	padding: 5px;
@@ -76,6 +85,7 @@ textarea {
 	background: url(logo.png);
 	width: 126px;
 	height: 42px;
+	border:none;
 }
 
 #box1 a.logo:hover {

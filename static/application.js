@@ -333,13 +333,11 @@ haste.prototype.configureButton = function(options) {
   options.$where.mouseenter(function(evt) {
     $('#box3 .label').text(options.label);
     $('#box3 .shortcut').text(options.shortcutDescription || '');
-    $('#box3').show();
-    $(this).append($('#pointer').remove().show());
   });
   // Hide the label
   options.$where.mouseleave(function(evt) {
-    $('#box3').hide();
-    $('#pointer').hide();
+    $('#box3 .label').html('&nbsp;');
+    $('#box3 .shortcut').html('&nbsp;');
   });
 };
 
