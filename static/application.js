@@ -18,31 +18,29 @@ haste_document.prototype.load = function(key, callback, lang) {
   var _this = this;
   $.ajax('/documents/' + key, {
     type: 'get',
-    dataType: 'json',
-    success: function(res) {
+    dataType: 'text',
+    success: function(data) {
       _this.locked = true;
       _this.key = key;
-      _this.data = res.data;
+      _this.data = data;
       try {
         var high;
         if (lang === 'txt') {
-          high = { value: _this.htmlEscape(res.data) };
-        }
-        else if (lang) {
-          high = hljs.highlight(lang, res.data);
-        }
-        else {
-          high = hljs.highlightAuto(res.data);
+          high = { value: _this.htmlEscape(data) };
+        } else if (lang) {
+          high = hljs.highlight(lang, data);
+        } else {
+          high = hljs.highlightAuto(data);
         }
       } catch(err) {
         // failed highlight, fall back on auto
-        high = hljs.highlightAuto(res.data);
+        high = hljs.highlightAuto(data);
       }
       callback({
         value: high.value,
         key: key,
         language: high.language || lang,
-        lineCount: res.data.split("\n").length
+        lineCount: data.split("\n").length
       });
     },
     error: function(err) {
@@ -77,8 +75,7 @@ haste_document.prototype.save = function(data, callback) {
     error: function(res) {
       try {
         callback($.parseJSON(res.responseText));
-      }
-      catch (e) {
+      } catch (e) {
         callback({message: 'Something went wrong!'});
       }
     }
@@ -102,16 +99,18 @@ var haste = function(appName, options) {
   }
 
   var _this = this;
-  $('body').dmUploader({
-    url: '/files',
+  this.fileUploadOpts = {
+    url: '/documents',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
-      window.location.replace('/files/' + data.key);
+      window.location.replace('/documents/' + data.key);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message);
     }
-  });
+  };
+  
+  $('body').dmUploader(this.fileUploadOpts);
 };
 
 // Set the page title - include the appName
@@ -313,7 +312,7 @@ haste.prototype.configureButtons = function() {
       },
       shortcutDescription: 'control + shift + r',
       action: function() {
-        window.location.href = '/raw/' + _this.doc.key;
+        window.location.replace('/documents/' + _this.doc.key);
       }
     },
     {

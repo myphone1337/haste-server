@@ -47,6 +47,20 @@ else {
   preferredStore = new Store(config.storage);
 }
 
+// Pick up a key generator
+var pwOptions = config.keyGenerator || {};
+pwOptions.type = pwOptions.type || 'random';
+var gen = require('./lib/key_generators/' + pwOptions.type);
+var keyGenerator = new gen(pwOptions);
+
+// Configure the document handler
+var documentHandler = new DocumentHandler({
+  store: preferredStore,
+  maxLength: config.maxLength,
+  keyLength: config.keyLength,
+  keyGenerator: keyGenerator
+});
+
 // Compress the static javascript assets
 if (config.recompressStaticAssets) {
   var jsp = require("uglify-js").parser;
@@ -74,41 +88,36 @@ var path, data;
 for (var name in config.documents) {
   path = config.documents[name];
   data = fs.readFileSync(path, 'utf8');
-  winston.info('loading static document', { name: name, path: path });
   if (data) {
-    preferredStore.set(name, data, function(cb) {
-      winston.debug('loaded static document', { success: cb });
-    }, true);
+    var doc = {
+      name: name,
+      size: data.length,
+      mimetype: 'text/plain',
+      file: null
+    };
+    // we're not actually using http requests to initialize the static docs
+    // so use a fake response object to determine finished success/failure
+    var nonHttpResponse = {
+      writeHead: function(code, misc) {
+        if (code == 200) {
+          winston.debug('loaded static document', { file: name, path: path });
+        } else {
+          winston.warn('failed to store static document', { file: name, path: path });
+        }
+      },
+      end: function(){}
+    };
+    documentHandler._setStoreObject(doc, data, nonHttpResponse, true);
   }
   else {
     winston.warn('failed to load static document', { name: name, path: path });
   }
 }
 
-// Pick up a key generator
-var pwOptions = config.keyGenerator || {};
-pwOptions.type = pwOptions.type || 'random';
-var gen = require('./lib/key_generators/' + pwOptions.type);
-var keyGenerator = new gen(pwOptions);
-
-// Configure the document handler
-var documentHandler = new DocumentHandler({
-  store: preferredStore,
-  maxLength: config.maxLength,
-  keyLength: config.keyLength,
-  keyGenerator: keyGenerator
-});
-
 // Set the server up with a static cache
 connect.createServer(
   // First look for api calls
   connect.router(function(app) {
-    // get raw documents - support getting with extension
-    app.get('/raw/:id', function(request, response, next) {
-      var skipExpire = !!config.documents[request.params.id];
-      var key = request.params.id.split('.')[0];
-      return documentHandler.handleRawGet(key, response, skipExpire);
-    });
     // add documents
     app.post('/documents', function(request, response, next) {
       return documentHandler.handlePost(request, response);
@@ -116,19 +125,7 @@ connect.createServer(
     // get documents
     app.get('/documents/:id', function(request, response, next) {
       var skipExpire = !!config.documents[request.params.id];
-      return documentHandler.handleGet(
-        request.params.id,
-        response,
-        skipExpire
-      );
-    });
-    // add files
-    app.post('/files', function(request, response, next) {
-      return documentHandler.handleFilesPost(request, response);
-    });
-    app.get('/files/:id', function(request, response, next) {
-      var key = request.params.id;
-      documentHandler.handleFileGet(key, response);
+      return documentHandler.handleGet(request.params.id, response, skipExpire);
     });
   }),
   // Otherwise, static
