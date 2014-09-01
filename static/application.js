@@ -100,6 +100,21 @@ var haste = function(appName, options) {
   if (!options.twitter) {
     $('#box2 .twitter').hide();
   }
+
+  var _this = this;
+  $("body").dmUploader({
+    url: '/files',
+    dataType: 'json',
+    onUploadSuccess: function(id, data) {
+      var message = '';
+      if (data.message) {
+        message = data.message;
+      } else if (data.filename) {
+        message = 'Uploaded ' + data.filename;
+      }
+      _this.showMessage(message);
+    }
+  });
 };
 
 // Set the page title - include the appName
@@ -392,5 +407,4 @@ $(function() {
       }
     }
   });
-
 });

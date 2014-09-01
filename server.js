@@ -122,6 +122,10 @@ connect.createServer(
         skipExpire
       );
     });
+    // add files
+    app.post('/files', function(request, response, next) {
+      return documentHandler.handleFilesPost(request, response);
+    });
   }),
   // Otherwise, static
   connect.staticCache(),
