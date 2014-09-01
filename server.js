@@ -126,6 +126,10 @@ connect.createServer(
     app.post('/files', function(request, response, next) {
       return documentHandler.handleFilesPost(request, response);
     });
+    app.get('/files/:id', function(request, response, next) {
+      var key = request.params.id;
+      documentHandler.handleFileGet(key, response);
+    });
   }),
   // Otherwise, static
   connect.staticCache(),

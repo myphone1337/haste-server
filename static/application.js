@@ -102,16 +102,13 @@ var haste = function(appName, options) {
   }
 
   var _this = this;
-  $("body").dmUploader({
+  $('body').dmUploader({
     url: '/files',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
-      var message = '';
-      if (data.message) {
-        message = data.message;
-      } else if (data.filename) {
-        message = 'Uploaded ' + data.filename;
-      }
+      window.location.replace('/files/' + data.key);
+    },
+    onUploadError: function(id, message) {
       _this.showMessage(message);
     }
   });
