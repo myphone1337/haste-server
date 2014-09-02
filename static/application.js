@@ -93,11 +93,7 @@ var haste = function(appName, options) {
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
-  // If twitter is disabled, hide the button
-  if (!options.twitter) {
-    $('#box2 .twitter').hide();
-  }
-
+  
   var _this = this;
   this.fileUploadOpts = {
     url: '/documents',
@@ -109,9 +105,7 @@ var haste = function(appName, options) {
       _this.showMessage(message);
     }
   };
-  
-  $('body').dmUploader(this.fileUploadOpts);
-};
+  $('body').dmUploader(this.fileUploadOpts);};
 
 // Set the page title - include the appName
 haste.prototype.setTitle = function(ext) {
@@ -135,7 +129,7 @@ haste.prototype.lightKey = function() {
 
 // Show the full key
 haste.prototype.fullKey = function() {
-  this.configureKey(['new', 'duplicate', 'twitter', 'raw']);
+  this.configureKey(['new', 'duplicate', 'raw']);
 };
 
 // Set the key up for certain things to be enabled
@@ -272,9 +266,9 @@ haste.prototype.configureButtons = function() {
     {
       $where: $('#box2 .save'),
       label: 'Save',
-      shortcutDescription: 'control + s',
+      shortcutDescription: 'ctrl + s',
       shortcut: function(evt) {
-        return evt.ctrlKey && (evt.keyCode === 83);
+        return (evt.ctrlKey || evt.metaKey) && (evt.keyCode === 83);
       },
       action: function() {
         if (_this.$textarea.val().replace(/^\s+|\s+$/g, '') !== '') {
@@ -286,9 +280,9 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .new'),
       label: 'New',
       shortcut: function(evt) {
-        return evt.ctrlKey && evt.keyCode === 78  
+        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 78  
       },
-      shortcutDescription: 'control + n',
+      shortcutDescription: 'ctrl + n',
       action: function() {
         _this.newDocument(!_this.doc.key);
       }
@@ -297,9 +291,9 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .duplicate'),
       label: 'Duplicate & Edit',
       shortcut: function(evt) {
-        return _this.doc.locked && evt.ctrlKey && evt.keyCode === 68;
+        return _this.doc.locked && (evt.ctrlKey || evt.metaKey) && evt.keyCode === 68;
       },
-      shortcutDescription: 'control + d',
+      shortcutDescription: 'ctrl + d',
       action: function() {
         _this.duplicateDocument();
       }
@@ -308,22 +302,11 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .raw'),
       label: 'Just Text',
       shortcut: function(evt) {
-        return evt.ctrlKey && evt.shiftKey && evt.keyCode === 82;
+        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && evt.keyCode === 82;
       },
-      shortcutDescription: 'control + shift + r',
+      shortcutDescription: 'ctrl + shift + r',
       action: function() {
         window.location.replace('/documents/' + _this.doc.key);
-      }
-    },
-    {
-      $where: $('#box2 .twitter'),
-      label: 'Twitter',
-      shortcut: function(evt) {
-        return _this.options.twitter && _this.doc.locked && evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
-      },
-      shortcutDescription: 'control + shift + t',
-      action: function() {
-        window.open('https://twitter.com/share?url=' + encodeURI(window.location.href));
       }
     }
   ];
