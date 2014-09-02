@@ -3,7 +3,7 @@
   "host": "0.0.0.0",
   "port": 7777,
 
-  "keyLength": 10,
+  "keyLength": 6,
 
   "maxLength": 400000,
 
@@ -20,15 +20,13 @@
   ],
 
   "keyGenerator": {
-    "type": "phonetic"
+    "type": "random",
+    "keyspace": "abcdefghijklmnopqrstuvwxyz01234567890"
   },
 
   "storage": {
-    "type": "redis",
-    "host": "0.0.0.0",
-    "port": 6379,
-    "db": 2,
-    "expire": 2592000
+    "path": "./data",
+    "type": "file"
   },
 
   "documents": {
@@ -36,3 +34,4 @@
   }
 
 }
+
