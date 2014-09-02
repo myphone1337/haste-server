@@ -95,7 +95,7 @@ var haste = function(appName, options) {
   this.configureButtons();
   
   var _this = this;
-  this.fileUploadOpts = {
+  var fileUploadOpts = {
     url: '/documents',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
@@ -105,7 +105,8 @@ var haste = function(appName, options) {
       _this.showMessage(message);
     }
   };
-  $('body').dmUploader(this.fileUploadOpts);};
+  $('body').dmUploader(fileUploadOpts);
+};
 
 // Set the page title - include the appName
 haste.prototype.setTitle = function(ext) {
@@ -291,9 +292,9 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .duplicate'),
       label: 'Duplicate & Edit',
       shortcut: function(evt) {
-        return _this.doc.locked && (evt.ctrlKey || evt.metaKey) && evt.keyCode === 68;
+        return _this.doc.locked && (evt.ctrlKey || evt.metaKey) && evt.keyCode === 69;
       },
-      shortcutDescription: 'ctrl + d',
+      shortcutDescription: 'ctrl + e',
       action: function() {
         _this.duplicateDocument();
       }
@@ -302,11 +303,13 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .raw'),
       label: 'Just Text',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && evt.keyCode === 82;
+        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 68;
       },
-      shortcutDescription: 'ctrl + shift + r',
+      shortcutDescription: 'ctrl + d',
       action: function() {
-        window.location.replace('/documents/' + _this.doc.key);
+        if (_this.doc.key) {
+          window.location.replace('/documents/' + _this.doc.key);
+        }
       }
     }
   ];
