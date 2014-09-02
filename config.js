@@ -3,7 +3,7 @@
   "host": "0.0.0.0",
   "port": 7777,
 
-  "keyLength": 6,
+  "keyLength": 8,
 
   "maxLength": 400000,
 
@@ -20,13 +20,14 @@
   ],
 
   "keyGenerator": {
-    "type": "random",
-    "keyspace": "abcdefghijklmnopqrstuvwxyz01234567890"
+    "type": "betterrand"
   },
 
   "storage": {
-    "path": "./data",
-    "type": "file"
+    "type": "redis",
+    "host": "localhost",
+    "port": 6379,
+    "db": 1
   },
 
   "documents": {
