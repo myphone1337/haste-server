@@ -18,7 +18,9 @@ haste_document.prototype.load = function(key, callback, lang) {
   var _this = this;
   $.ajax('/documents/' + key, {
     type: 'get',
-    dataType: 'text',
+    headers: {
+      accept: 'text/plain'
+    },
     success: function(data) {
       _this.locked = true;
       _this.key = key;
