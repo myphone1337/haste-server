@@ -99,7 +99,7 @@ var haste = function(appName, options) {
     url: '/documents',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
-      window.location.replace('/documents/' + data.key);
+      window.location.assign('/documents/' + data.key);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message);
@@ -150,12 +150,9 @@ haste.prototype.configureKey = function(enable) {
 
 // Remove the current document (if there is one)
 // and set up for a new one
-haste.prototype.newDocument = function(hideHistory) {
+haste.prototype.newDocument = function() {
   this.$box.hide();
   this.doc = new haste_document();
-  if (!hideHistory) {
-    window.history.pushState(null, this.appName, '/');
-  }
   this.setTitle();
   this.lightKey();
   this.$textarea.val('').show('fast', function() {
@@ -246,17 +243,7 @@ haste.prototype.lockDocument = function() {
       _this.showMessage(err.message, 'error');
     }
     else if (ret) {
-      _this.$code.html(ret.value);
-      _this.setTitle(ret.key);
-      var file = '/' + ret.key;
-      if (ret.language) {
-        file += '.' + _this.lookupExtensionByType(ret.language);
-      }
-      window.history.pushState(null, _this.appName + '-' + ret.key, file);
-      _this.fullKey();
-      _this.$textarea.val('').hide();
-      _this.$box.show().focus();
-      _this.addLineNumbers(ret.lineCount);
+      window.location.assign('/' + ret.key);
     }
   });
 };
@@ -285,7 +272,7 @@ haste.prototype.configureButtons = function() {
       },
       shortcutDescription: 'ctrl + n',
       action: function() {
-        _this.newDocument(!_this.doc.key);
+        _this.newDocument();
       }
     },
     {
@@ -308,7 +295,7 @@ haste.prototype.configureButtons = function() {
       shortcutDescription: 'ctrl + d',
       action: function() {
         if (_this.doc.key) {
-          window.location.replace('/documents/' + _this.doc.key);
+          window.location.assign('/documents/' + _this.doc.key);
         }
       }
     }
