@@ -18,31 +18,29 @@ haste_document.prototype.load = function(key, callback, lang) {
   var _this = this;
   $.ajax('/documents/' + key, {
     type: 'get',
-    dataType: 'json',
-    success: function(res) {
+    dataType: 'text',
+    success: function(data) {
       _this.locked = true;
       _this.key = key;
-      _this.data = res.data;
+      _this.data = data;
       try {
         var high;
         if (lang === 'txt') {
-          high = { value: _this.htmlEscape(res.data) };
-        }
-        else if (lang) {
-          high = hljs.highlight(lang, res.data);
-        }
-        else {
-          high = hljs.highlightAuto(res.data);
+          high = { value: _this.htmlEscape(data) };
+        } else if (lang) {
+          high = hljs.highlight(lang, data);
+        } else {
+          high = hljs.highlightAuto(data);
         }
       } catch(err) {
         // failed highlight, fall back on auto
-        high = hljs.highlightAuto(res.data);
+        high = hljs.highlightAuto(data);
       }
       callback({
         value: high.value,
         key: key,
         language: high.language || lang,
-        lineCount: res.data.split("\n").length
+        lineCount: data.split("\n").length
       });
     },
     error: function(err) {
@@ -77,8 +75,7 @@ haste_document.prototype.save = function(data, callback) {
     error: function(res) {
       try {
         callback($.parseJSON(res.responseText));
-      }
-      catch (e) {
+      } catch (e) {
         callback({message: 'Something went wrong!'});
       }
     }
@@ -96,10 +93,19 @@ var haste = function(appName, options) {
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
-  // If twitter is disabled, hide the button
-  if (!options.twitter) {
-    $('#box2 .twitter').hide();
-  }
+  
+  var _this = this;
+  var fileUploadOpts = {
+    url: '/documents',
+    dataType: 'json',
+    onUploadSuccess: function(id, data) {
+      window.location.replace('/documents/' + data.key);
+    },
+    onUploadError: function(id, message) {
+      _this.showMessage(message);
+    }
+  };
+  $('body').dmUploader(fileUploadOpts);
 };
 
 // Set the page title - include the appName
@@ -124,7 +130,7 @@ haste.prototype.lightKey = function() {
 
 // Show the full key
 haste.prototype.fullKey = function() {
-  this.configureKey(['new', 'duplicate', 'twitter', 'raw']);
+  this.configureKey(['new', 'duplicate', 'raw']);
 };
 
 // Set the key up for certain things to be enabled
@@ -261,9 +267,9 @@ haste.prototype.configureButtons = function() {
     {
       $where: $('#box2 .save'),
       label: 'Save',
-      shortcutDescription: 'control + s',
+      shortcutDescription: 'ctrl + s',
       shortcut: function(evt) {
-        return evt.ctrlKey && (evt.keyCode === 83);
+        return (evt.ctrlKey || evt.metaKey) && (evt.keyCode === 83);
       },
       action: function() {
         if (_this.$textarea.val().replace(/^\s+|\s+$/g, '') !== '') {
@@ -275,9 +281,9 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .new'),
       label: 'New',
       shortcut: function(evt) {
-        return evt.ctrlKey && evt.keyCode === 78  
+        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 78  
       },
-      shortcutDescription: 'control + n',
+      shortcutDescription: 'ctrl + n',
       action: function() {
         _this.newDocument(!_this.doc.key);
       }
@@ -286,9 +292,9 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .duplicate'),
       label: 'Duplicate & Edit',
       shortcut: function(evt) {
-        return _this.doc.locked && evt.ctrlKey && evt.keyCode === 68;
+        return _this.doc.locked && (evt.ctrlKey || evt.metaKey) && evt.keyCode === 69;
       },
-      shortcutDescription: 'control + d',
+      shortcutDescription: 'ctrl + e',
       action: function() {
         _this.duplicateDocument();
       }
@@ -297,22 +303,13 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .raw'),
       label: 'Just Text',
       shortcut: function(evt) {
-        return evt.ctrlKey && evt.shiftKey && evt.keyCode === 82;
+        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 68;
       },
-      shortcutDescription: 'control + shift + r',
+      shortcutDescription: 'ctrl + d',
       action: function() {
-        window.location.href = '/raw/' + _this.doc.key;
-      }
-    },
-    {
-      $where: $('#box2 .twitter'),
-      label: 'Twitter',
-      shortcut: function(evt) {
-        return _this.options.twitter && _this.doc.locked && evt.shiftKey && evt.ctrlKey && evt.keyCode == 84;
-      },
-      shortcutDescription: 'control + shift + t',
-      action: function() {
-        window.open('https://twitter.com/share?url=' + encodeURI(window.location.href));
+        if (_this.doc.key) {
+          window.location.replace('/documents/' + _this.doc.key);
+        }
       }
     }
   ];
@@ -390,5 +387,4 @@ $(function() {
       }
     }
   });
-
 });
