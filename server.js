@@ -125,7 +125,7 @@ connect.createServer(
     // get documents
     app.get('/documents/:id', function(request, response, next) {
       var skipExpire = !!config.documents[request.params.id];
-      return documentHandler.handleGet(request.params.id, response, skipExpire);
+      return documentHandler.handleGet(request, response, skipExpire);
     });
   }),
   // Otherwise, static

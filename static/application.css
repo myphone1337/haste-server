@@ -1,9 +1,16 @@
+html {
+	height:100%;
+	overflow-y:hidden;
+}
+
 body {
 	background: #002B36;
 	padding: 0px;
 	margin: 0px;
 	color:#9d9d9d;
 	font-family: Helvetica, sans-serif;
+	height:100%;
+	overflow-y:auto;
 }
 
 /* textarea */
@@ -13,7 +20,7 @@ textarea {
 	border: 0px;
 	color: #fff;
 	padding: 0px;
-	width: 960px;
+	width: 100%;
 	height: 100%;
 	font-family: monospace;
 	outline: none;
