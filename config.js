@@ -5,7 +5,7 @@
 
   "keyLength": 8,
 
-  "maxLength": 400000,
+  "maxLength": 524288000,
 
   "staticMaxAge": 86400,
 
@@ -13,9 +13,11 @@
 
   "logging": [
     {
-      "level": "verbose",
-      "type": "Console",
-      "colorize": true
+       "type": "File",
+       "timestamp": true,
+       "filename": "haste-server.js.log",
+       "maxsize": 16777216,
+       "maxFiles": 10
     }
   ],
 
