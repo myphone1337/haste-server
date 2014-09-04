@@ -43,26 +43,34 @@
 	<body>
 		<ul id="messages"></ul>
 
-		<div id="key">
-		  <div id="pointer" style="display:none;"></div>
-			<div id="box1">
-				<a href="/about.md" class="logo"></a>
+		<div id="sidebar">
+			<div id="key">
+				<div id="box1">
+					<a href="/about.md" class="logo"></a>
+				</div>
+				<div id="box2">
+					<div class="save function"></div>
+					<div class="new function"></div>
+					<div class="duplicate function"></div>
+					<div class="raw function"></div>
+				</div>
+				<div id="box3">
+					<div class="label">&nbsp;</div>
+					<div class="shortcut">&nbsp;</div>
+				</div>
 			</div>
-			<div id="box2">
-				<div class="save function"></div>
-				<div class="new function"></div>
-				<div class="duplicate function"></div>
-				<div class="raw function"></div>
-			</div>
-			<div id="box3" style="display:none;">
-				<div class="label"></div>
-				<div class="shortcut"></div>
-			</div>
+
+			<div id="recent-pastes-title">Recent Posts</div>
+			<div id="recent-pastes"></div>
 		</div>
 
-		<div id="linenos"></div>
-		<pre id="box" style="display:none;" tabindex="0"><code></code></pre>
-		<textarea spellcheck="false" style="display:none;"></textarea>
+		<div id="textcontent">
+			<div id="linenos"></div>
+			<div id="pastebin">
+				<pre id="box" style="display:none;" tabindex="0"><code id="boxcode"></code></pre>
+				<textarea spellcheck="false" style="display:none;"></textarea>
+			</div>
+		</div>
 
 	</body>
 
