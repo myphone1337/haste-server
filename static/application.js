@@ -16,7 +16,7 @@ haste_document.prototype.htmlEscape = function(s) {
 // Get this document from the server and lock it here
 haste_document.prototype.load = function(key, callback, lang) {
   var _this = this;
-  $.ajax('/documents/' + key, {
+  $.ajax('/docs/' + key, {
     type: 'get',
     headers: {
       accept: 'text/plain'
@@ -58,7 +58,7 @@ haste_document.prototype.save = function(data, callback) {
   }
   this.data = data;
   var _this = this;
-  $.ajax('/documents', {
+  $.ajax('/docs', {
     type: 'post',
     data: data,
     dataType: 'json',
@@ -98,10 +98,10 @@ var haste = function(appName, options) {
   
   var _this = this;
   var fileUploadOpts = {
-    url: '/documents',
+    url: '/docs',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
-      window.location.assign('/documents/' + data.key);
+      window.location.assign('/docs/' + data.key);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message);
@@ -297,7 +297,7 @@ haste.prototype.configureButtons = function() {
       shortcutDescription: 'ctrl + d',
       action: function() {
         if (_this.doc.key) {
-          window.location.assign('/documents/' + _this.doc.key);
+          window.location.assign('/docs/' + _this.doc.key);
         }
       }
     }
