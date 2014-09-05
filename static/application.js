@@ -16,7 +16,7 @@ haste_document.prototype.htmlEscape = function(s) {
 // Get this document from the server and lock it here
 haste_document.prototype.load = function(key, callback, lang) {
   var _this = this;
-  $.ajax('/documents/' + key, {
+  $.ajax('/docs/' + key, {
     type: 'get',
     headers: {
       accept: 'text/plain'
@@ -58,7 +58,7 @@ haste_document.prototype.save = function(data, callback) {
   }
   this.data = data;
   var _this = this;
-  $.ajax('/documents', {
+  $.ajax('/docs', {
     type: 'post',
     data: data,
     dataType: 'json',
@@ -95,13 +95,23 @@ var haste = function(appName, options) {
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
+  this.loadRecentPosts();
   
   var _this = this;
   var fileUploadOpts = {
-    url: '/documents',
+    url: '/docs',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
-      window.location.assign('/documents/' + data.key);
+      var ext = '';
+      var extIndex = data.metadata.name.lastIndexOf('.');
+      if (extIndex > -1) {
+        ext = data.metadata.name.substring(extIndex);
+      }
+      var href = '/' + data.key + ext;
+      if (data.metadata.name && data.metadata.mimetype.indexOf('text') < 0) {
+        href = '/docs' + href;
+      }
+      window.location.assign(href);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message);
@@ -297,7 +307,7 @@ haste.prototype.configureButtons = function() {
       shortcutDescription: 'ctrl + d',
       action: function() {
         if (_this.doc.key) {
-          window.location.assign('/documents/' + _this.doc.key);
+          window.location.assign('/docs/' + _this.doc.key);
         }
       }
     }
@@ -339,6 +349,28 @@ haste.prototype.configureShortcuts = function() {
         button.action();
         return;
       }
+    }
+  });
+};
+
+// Load recent posts to show in sidebar
+haste.prototype.loadRecentPosts = function() {
+  $.ajax('/recent', {
+    type: 'get',
+    dataType: 'json',
+    success: function(res) {
+      var items = '';
+      for (var i in res) {
+        var item = res[i];
+        var title = item.name;
+        if (!title) title = item.key;
+        var href = '/' + item.key
+        if (item.name && item.mimetype.indexOf('text') < 0) {
+          href = '/docs' + href;
+        }
+        items += '<li><a href="' + href + '">' + title + '</a></li>';
+      }
+      $('#recent-pastes ul').html(items);
     }
   });
 };

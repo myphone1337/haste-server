@@ -119,14 +119,18 @@ connect.createServer(
   // First look for api calls
   connect.router(function(app) {
     // add documents
-    app.post('/documents', function(request, response, next) {
+    app.post('/docs', function(request, response, next) {
       return documentHandler.handlePost(request, response);
     });
     // get documents
-    app.get('/documents/:id', function(request, response, next) {
+    app.get('/docs/:id', function(request, response, next) {
       var skipExpire = !!config.documents[request.params.id];
       return documentHandler.handleGet(request, response, skipExpire);
     });
+    // get recent documents
+    app.get('/recent', function(request, response, next) {
+      return documentHandler.handleRecent(request, response);
+    })
   }),
   // Otherwise, static
   connect.staticCache(),
