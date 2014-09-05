@@ -127,6 +127,10 @@ connect.createServer(
       var skipExpire = !!config.documents[request.params.id];
       return documentHandler.handleGet(request, response, skipExpire);
     });
+    // get recent documents
+    app.get('/recent', function(request, response, next) {
+      return documentHandler.handleRecent(request, response);
+    })
   }),
   // Otherwise, static
   connect.staticCache(),

@@ -95,6 +95,7 @@ var haste = function(appName, options) {
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
+  this.loadRecentPosts();
   
   var _this = this;
   var fileUploadOpts = {
@@ -106,7 +107,11 @@ var haste = function(appName, options) {
       if (extIndex > -1) {
         ext = data.metadata.name.substring(extIndex);
       }
-      window.location.assign('/docs/' + data.key + ext);
+      var href = '/' + data.key + ext;
+      if (data.metadata.name && data.metadata.mimetype.indexOf('text') < 0) {
+        href = '/docs' + href;
+      }
+      window.location.assign(href);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message);
@@ -344,6 +349,28 @@ haste.prototype.configureShortcuts = function() {
         button.action();
         return;
       }
+    }
+  });
+};
+
+// Load recent posts to show in sidebar
+haste.prototype.loadRecentPosts = function() {
+  $.ajax('/recent', {
+    type: 'get',
+    dataType: 'json',
+    success: function(res) {
+      var items = '';
+      for (var i in res) {
+        var item = res[i];
+        var title = item.name;
+        if (!title) title = item.key;
+        var href = '/' + item.key
+        if (item.name && item.mimetype.indexOf('text') < 0) {
+          href = '/docs' + href;
+        }
+        items += '<li><a href="' + href + '">' + title + '</a></li>';
+      }
+      $('#recent-pastes ul').html(items);
     }
   });
 };

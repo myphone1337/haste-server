@@ -13,6 +13,16 @@ body {
 	overflow-y:auto;
 }
 
+a, a:visited {
+	color: #8d8dbd;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #8d8dbd;
+	text-decoration: underline;
+}
+
 /* textarea */
 
 textarea {
@@ -77,6 +87,11 @@ textarea {
 #recent-pastes-title {
 	text-align:center;
 	margin:10px;
+}
+
+#recent-pastes ul {
+	list-style-type: none;
+	margin:0 0 0 -10px;
 }
 
 /* key (the logo + menu) */
