@@ -101,7 +101,12 @@ var haste = function(appName, options) {
     url: '/docs',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
-      window.location.assign('/docs/' + data.key);
+      var ext = '';
+      var extIndex = data.metadata.name.lastIndexOf('.');
+      if (extIndex > -1) {
+        ext = data.metadata.name.substring(extIndex);
+      }
+      window.location.assign('/docs/' + data.key + ext);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message);
