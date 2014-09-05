@@ -20,16 +20,23 @@ textarea {
 	border: none;
 	color: #fff;
 	margin:0;
-	width: 100%;
-	height: 90%;
+	width: 98%;
+	height: 98%;
 	font-family: monospace;
 	outline: none;
 	resize: none;
 	font-size: 13px;
 }
 
+#sidebar {
+	position:fixed;
+	left:0;
+	top:0;
+	width:150px;
+}
+
 #textcontent {
-	margin:2em 0 0 0;
+	margin:10px 0 0 195px;
 }
 
 /* the line numbers */
@@ -41,14 +48,13 @@ textarea {
 	font-size: 13px;
 	font-family: monospace;
 	text-align: right;
-	margin:0 5px 0 150px;
+	margin:10px 1em 0 150px;
 }
 
 #pastebin {
-	float:left;
 	margin:0;
-	width: 960px;
-	height:95%;
+	width: 100%;
+	
 }
 
 /* code box when locked */
@@ -59,19 +65,13 @@ textarea {
 	border:0;
 	outline: none;
 	font-size: 13px;
+	width:100%;
 	height:95%;
 }
 
 #boxcode {
 	padding:0 0 2em 0;
 	background: transparent !important; /* don't hide hastebox */
-}
-
-#sidebar {
-	position:fixed;
-	left:0;
-	top:0;
-	width:150px;
 }
 
 #recent-pastes-title {
