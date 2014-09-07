@@ -47,7 +47,6 @@ textarea {
 
 #textcontent {
 	margin:10px 0 0 195px;
-	height:98%;
 }
 
 /* the line numbers */
@@ -65,7 +64,6 @@ textarea {
 #pastebin {
 	margin:0;
 	width: 100%;
-	height:98%;
 }
 
 /* code box when locked */
