@@ -21,7 +21,7 @@
     "then-redis": "0.3.12",
     "uglify-js": "2.4.15",
     "busboy": "0.2.8",
-    "mimetype": "0.0.5"
+    "mime": "1.2.11"
   },
   "devDependencies": {
     "mocha": "*",
