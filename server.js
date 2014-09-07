@@ -88,8 +88,7 @@ for (var name in config.documents) {
     var doc = {
       name: name,
       size: data.length,
-      mimetype: 'text/plain',
-      file: null
+      mimetype: 'text/plain'
     };
     // we're not actually using http requests to initialize the static docs
     // so use a fake response object to determine finished success/failure
