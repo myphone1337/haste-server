@@ -362,9 +362,16 @@ haste.prototype.loadRecentPosts = function() {
       var items = '';
       for (var i in res) {
         var item = res[i];
+
         var title = item.name;
+        var ext = '';
+        var extIndex = title.lastIndexOf('.');
+        if (extIndex > -1) {
+          ext = title.substring(extIndex);
+        }
+        
         if (!title) title = item.key;
-        var href = '/' + item.key
+        var href = '/' + item.key + ext;
         if (item.name && item.mimetype.indexOf('text') < 0) {
           href = '/docs' + href;
         }
