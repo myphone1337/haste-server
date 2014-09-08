@@ -64,7 +64,6 @@ textarea {
 #pastebin {
 	margin:0;
 	width: 100%;
-	
 }
 
 /* code box when locked */
@@ -89,9 +88,21 @@ textarea {
 	margin:10px;
 }
 
+#recent-pastes {
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	hyphens:auto;
+}
+
 #recent-pastes ul {
 	list-style-type: none;
 	margin:0 0 0 -10px;
+}
+
+#recent-pastes ul li {
+	margin:0 0 5px 0;
+	font-family:monospace;
+	font-size:10pt;
 }
 
 /* key (the logo + menu) */

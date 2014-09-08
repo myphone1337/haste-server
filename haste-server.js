@@ -4,6 +4,10 @@ var fs = require('fs');
 
 var winston = require('winston');
 var connect = require('connect');
+var uglify = require('uglify-js');
+
+var connectRoute = require('connect-route');
+var st = require('st');
 
 var DocumentHandler = require('./lib/document_handler');
 
@@ -35,17 +39,8 @@ if (!config.storage.type) {
   config.storage.type = 'file';
 }
 
-var Store, preferredStore;
-
-if (process.env.REDISTOGO_URL && config.storage.type === 'redis') {
-  var redisClient = require('redis-url').connect(process.env.REDISTOGO_URL);
-  Store = require('./lib/document_stores/redis');
-  preferredStore = new Store(config.storage, redisClient);
-}
-else {
-  Store = require('./lib/document_stores/' + config.storage.type);
-  preferredStore = new Store(config.storage);
-}
+var Store = require('./lib/document_stores/' + config.storage.type);
+var preferredStore = new Store(config.storage);
 
 // Pick up a key generator
 var pwOptions = config.keyGenerator || {};
@@ -63,21 +58,13 @@ var documentHandler = new DocumentHandler({
 
 // Compress the static javascript assets
 if (config.recompressStaticAssets) {
-  var jsp = require("uglify-js").parser;
-  var pro = require("uglify-js").uglify;
   var list = fs.readdirSync('./static');
   for (var i = 0; i < list.length; i++) {
     var item = list[i];
-    var orig_code, ast;
-    if ((item.indexOf('.js') === item.length - 3) &&
-        (item.indexOf('.min.js') === -1)) {
-      dest = item.substring(0, item.length - 3) + '.min' +
-        item.substring(item.length - 3);
-      orig_code = fs.readFileSync('./static/' + item, 'utf8');
-      ast = jsp.parse(orig_code);
-      ast = pro.ast_mangle(ast);
-      ast = pro.ast_squeeze(ast);
-      fs.writeFileSync('./static/' + dest, pro.gen_code(ast), 'utf8');
+    if ((item.indexOf('.js') === item.length - 3) && (item.indexOf('.min.js') === -1)) {
+      dest = item.substring(0, item.length - 3) + '.min' + item.substring(item.length - 3);
+      var minified = uglify.minify('./static/' + item);
+      fs.writeFileSync('./static/' + dest, minified.code, 'utf8');
       winston.info('compressed ' + item + ' into ' + dest);
     }
   }
@@ -92,8 +79,7 @@ for (var name in config.documents) {
     var doc = {
       name: name,
       size: data.length,
-      mimetype: 'text/plain',
-      file: null
+      mimetype: 'text/plain'
     };
     // we're not actually using http requests to initialize the static docs
     // so use a fake response object to determine finished success/failure
@@ -114,36 +100,49 @@ for (var name in config.documents) {
   }
 }
 
-// Set the server up with a static cache
-connect.createServer(
-  // First look for api calls
-  connect.router(function(app) {
-    // add documents
-    app.post('/docs', function(request, response, next) {
-      return documentHandler.handlePost(request, response);
-    });
-    // get documents
-    app.get('/docs/:id', function(request, response, next) {
-      var skipExpire = !!config.documents[request.params.id];
-      return documentHandler.handleGet(request, response, skipExpire);
-    });
-    // get recent documents
-    app.get('/recent', function(request, response, next) {
-      return documentHandler.handleRecent(request, response);
-    })
-  }),
-  // Otherwise, static
-  connect.staticCache(),
-  connect.static(__dirname + '/static', { maxAge: config.staticMaxAge }),
-  // Then we can loop back - and everything else should be a token,
-  // so route it back to /index.html
-  connect.router(function(app) {
-    app.get('/:id', function(request, response, next) {
-      request.url = request.originalUrl = '/index.html';
-      next();
-    });
-  }),
-  connect.static(__dirname + '/static', { maxAge: config.staticMaxAge })
-).listen(config.port, config.host);
+var staticServe = st({
+  path: './static',
+  url: '/',
+  index: 'index.html',
+  passthrough: true
+});
+
+var apiServe = connectRoute(function(router) {
+  // add documents
+  router.post('/docs', function(request, response, next) {
+    return documentHandler.handlePost(request, response);
+  });
+  // get documents
+  router.get('/docs/:id', function(request, response, next) {
+    var skipExpire = !!config.documents[request.params.id];
+    return documentHandler.handleGet(request, response, skipExpire);
+  });
+  // get recent documents
+  router.get('/recent', function(request, response, next) {
+    return documentHandler.handleRecent(request, response);
+  });
+  // if the previous static-serving module didn't respond to the resource, 
+  // forward to next with index.html and the web client application will request the doc based on the url
+  router.get('/:id', function(request, response, next) {
+    // redirect to index.html, also clearing the previous 'st' module 'sturl' field generated
+    // by the first staticServe module. if sturl isn't cleared out then this new request.url is not
+    // looked at again.
+    request.url = '/index.html';
+    request.sturl = null;
+    next();
+  });
+});
+
+var staticRemains = st({
+  path: './static',
+  url: '/',
+  passthrough: false
+});
+
+var app = connect();
+app.use(staticServe);
+app.use(apiServe);
+app.use(staticRemains);
+app.listen(config.port, config.host);
 
 winston.info('listening on ' + config.host + ':' + config.port);
