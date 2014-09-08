@@ -39,17 +39,8 @@ if (!config.storage.type) {
   config.storage.type = 'file';
 }
 
-var Store, preferredStore;
-
-if (process.env.REDISTOGO_URL && config.storage.type === 'redis') {
-  var redisClient = require('redis-url').connect(process.env.REDISTOGO_URL);
-  Store = require('./lib/document_stores/redis');
-  preferredStore = new Store(config.storage, redisClient);
-}
-else {
-  Store = require('./lib/document_stores/' + config.storage.type);
-  preferredStore = new Store(config.storage);
-}
+var Store = require('./lib/document_stores/' + config.storage.type);
+var preferredStore = new Store(config.storage);
 
 // Pick up a key generator
 var pwOptions = config.keyGenerator || {};
