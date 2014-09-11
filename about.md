@@ -37,6 +37,12 @@ To share screenshots or log files (or zip), simply drag the file from your
 desktop onto the page. After the upload has finished you will be redirected 
 to the file's location, which you can then share.
 
+## Recent Posts
+
+The most recent posts you've visited will be listed on the left. If you change 
+browsers or computers this list will not be the same. This is only to let you 
+see what posts you've recently browsed. The list will only show ~20 items.
+
 ## Issues
 
 Report questions/issues to Christopher Speck.
