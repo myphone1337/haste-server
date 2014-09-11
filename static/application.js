@@ -178,6 +178,7 @@ haste.prototype.updateRecents = function() {
     return item !== _this.doc.key;
   });
   recents.unshift(_this.doc.key);
+  recents = recents.slice(0, recents.length > 20 ? 20 : recents.length);
   localStorage.setItem('recents', JSON.stringify(recents));
   this.loadRecentsList();
 };
