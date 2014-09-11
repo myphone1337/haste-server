@@ -74,30 +74,49 @@ if (config.recompressStaticAssets) {
 var path, data;
 for (var name in config.documents) {
   path = config.documents[name];
-  data = fs.readFileSync(path, 'utf8');
-  if (data) {
-    var doc = {
-      name: name,
-      size: data.length,
-      mimetype: 'text/plain'
-    };
-    // we're not actually using http requests to initialize the static docs
-    // so use a fake response object to determine finished success/failure
-    var nonHttpResponse = {
-      writeHead: function(code, misc) {
-        if (code == 200) {
-          winston.debug('loaded static document', { file: name, path: path });
-        } else {
-          winston.warn('failed to store static document', { file: name, path: path });
-        }
-      },
-      end: function(){}
-    };
-    documentHandler._setStoreObject(doc, data, nonHttpResponse, true);
-  }
-  else {
-    winston.warn('failed to load static document', { name: name, path: path });
-  }
+
+  var storeStaticDoc = function() {
+    data = fs.readFileSync(path, 'utf8');
+    if (data) {
+      var syntax = '';
+      var extIndex = path.lastIndexOf('.');
+      if (extIndex > -1 && extIndex < path.length - 1) {
+        syntax = path.substring(extIndex + 1);
+      }
+      var doc = {
+        name: name,
+        size: data.length,
+        mimetype: 'text/plain',
+        syntax: syntax
+      };
+      // we're not actually using http requests to initialize the static docs
+      // so use a fake response object to determine finished success/failure
+      var nonHttpResponse = {
+        writeHead: function(code, misc) {
+          if (code == 200) {
+            winston.debug('loaded static document', { file: name, path: path });
+          } else {
+            winston.warn('failed to store static document', { file: name, path: path });
+          }
+        },
+        end: function(){}
+      };
+      documentHandler._setStoreObject(doc, data, nonHttpResponse, true);
+    }
+    else {
+      winston.warn('failed to load static document', { name: name, path: path });
+    }
+  };
+
+  var nonHttpResponse = {writeHead: function(){},end: function(){}};
+  documentHandler._getStoreObject(name, true, nonHttpResponse, function(err, doc) {
+    if (err) {
+      storeStaticDoc();
+    }
+    else {
+      winston.verbose('not storing static document as it already exists', {name: name});
+    }
+  });
 }
 
 var staticServe = st({
