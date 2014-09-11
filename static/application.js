@@ -88,7 +88,6 @@ haste_document.prototype.save = function(data, callback) {
 ///// represents the paste application
 
 var haste = function(appName, options) {
-  this.showRecents = false;
   this.appName = appName;
   this.$textarea = $('textarea');
   this.$box = $('#box');
@@ -99,7 +98,7 @@ var haste = function(appName, options) {
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
-  this.loadRecentPosts();
+  this.loadRecentsList();
   
   var _this = this;
   var fileUploadOpts = {
@@ -163,6 +162,60 @@ haste.prototype.configureKey = function(enable) {
     $this.removeClass('enabled');
   });
 };
+
+haste.prototype.getRecents = function() {
+  var recents = localStorage.getItem('recents');
+  if (recents) {
+    return JSON.parse(recents);
+  }
+  return [];
+};
+
+haste.prototype.updateRecents = function() {
+  var _this = this;
+  var recents = this.getRecents();
+  recents = recents.filter(function(item) {
+    return item !== _this.doc.key;
+  });
+  recents.unshift(_this.doc.key);
+  localStorage.setItem('recents', JSON.stringify(recents));
+  this.loadRecentsList();
+};
+
+haste.prototype.loadRecentsList = function() {
+  var recents = this.getRecents();
+  var data = JSON.stringify(recents);
+  $.ajax('/keys', {
+    type: 'post',
+    data: data,
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    success: function(res) {
+      var items = '';
+      for (var i in res) {
+        var item = res[i];
+
+        var title = item.name;
+        var ext = '';
+        var extIndex = title.lastIndexOf('.');
+        if (extIndex > -1) {
+          ext = title.substring(extIndex);
+        }
+        if (item.syntax) {
+          ext = '.' + item.syntax;
+        }
+        
+        if (!title) title = item.key + ext;
+        var href = '/' + item.key + ext;
+        if (item.name && item.mimetype.indexOf('text') < 0) {
+          href = '/docs' + href;
+        }
+        items += '<li><a href="' + href + '">' + title + '</a></li>';
+      }
+      $('#recent-pastes ul').html(items);
+    }
+  });
+}
 
 // Remove the current document (if there is one)
 // and set up for a new one
@@ -240,6 +293,7 @@ haste.prototype.loadDocument = function(key) {
       _this.$textarea.val('').hide();
       _this.$box.show().focus();
       _this.addLineNumbers(ret.lineCount);
+      _this.updateRecents();
     }
     else {
       _this.newDocument();
@@ -378,7 +432,7 @@ haste.prototype.configureShortcuts = function() {
 };
 
 // Load recent posts to show in sidebar
-haste.prototype.loadRecentPosts = function() {
+haste.prototype.loadRecentPostsFromServer = function() {
   if (!this.showRecents) {
     this.$recents.html('');
     this.$recents.hide();
