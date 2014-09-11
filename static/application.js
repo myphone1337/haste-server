@@ -384,7 +384,7 @@ haste.prototype.configureButtons = function() {
       shortcutDescription: 'ctrl + shift + i',
       action: function() {
         _this.showRecents = !_this.showRecents;
-        _this.loadRecentPosts();
+        _this.loadRecentPostsFromServer();
       }
     }
   ];
