@@ -88,11 +88,14 @@ haste_document.prototype.save = function(data, callback) {
 ///// represents the paste application
 
 var haste = function(appName, options) {
+  this.showRecents = false;
   this.appName = appName;
   this.$textarea = $('textarea');
   this.$box = $('#box');
   this.$code = $('#box code');
   this.$linenos = $('#linenos');
+  this.$recents = $('#recent-pastes ul');
+  this.$recentsTitle = $('#recent-pastes-title');
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
@@ -316,6 +319,18 @@ haste.prototype.configureButtons = function() {
           window.location.assign('/docs/' + _this.doc.key);
         }
       }
+    },
+    {
+      $where: null,
+      label: 'Recent Posts',
+      shortcut: function(evt) {
+        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && evt.keyCode == 73;
+      },
+      shortcutDescription: 'ctrl + shift + i',
+      action: function() {
+        _this.showRecents = !_this.showRecents;
+        _this.loadRecentPosts();
+      }
     }
   ];
   for (var i = 0; i < this.buttons.length; i++) {
@@ -324,6 +339,9 @@ haste.prototype.configureButtons = function() {
 };
 
 haste.prototype.configureButton = function(options) {
+  if (!options.$where) {
+    return;
+  }
   // Handle the click action
   options.$where.click(function(evt) {
     evt.preventDefault();
@@ -361,6 +379,16 @@ haste.prototype.configureShortcuts = function() {
 
 // Load recent posts to show in sidebar
 haste.prototype.loadRecentPosts = function() {
+  if (!this.showRecents) {
+    this.$recents.html('');
+    this.$recents.hide();
+    this.$recentsTitle.hide();
+    return;
+  }
+
+  this.$recents.show();
+  this.$recentsTitle.show();
+
   $.ajax('/recent', {
     type: 'get',
     dataType: 'json',
@@ -379,7 +407,7 @@ haste.prototype.loadRecentPosts = function() {
           ext = '.' + item.syntax;
         }
         
-        if (!title) title = item.key;
+        if (!title) title = item.key + ext;
         var href = '/' + item.key + ext;
         if (item.name && item.mimetype.indexOf('text') < 0) {
           href = '/docs' + href;
