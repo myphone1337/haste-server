@@ -1,61 +1,42 @@
-# Haste
+# Haste: Short-term Storage & Sharing
 
-Sharing code is a good thing, and it should be _really_ easy to do it.
-A lot of times, I want to show you something I'm seeing - and that's where we
-use pastebins.
+Use to quickly share stacktraces, logs, screenshots.
 
-Haste is the prettiest, easiest to use pastebin ever made.
+### THIS IS NOT A REPLACEMENT FOR CORE ATTACHMENTS - DO NOT USE IT AS SUCH
+### IF YOU ARE SHARING FOR NOTE/ECO INVESTIGATION THEN IT BELONGS IN CORE
 
-## Basic Usage
 
-Type what you want me to see, click "Save", and then copy the URL.  Send that
-URL to someone and they'll see what you see.
-
-To make a new entry, click "New" (or type 'control + n')
-
-## From the Console
-
-Most of the time I want to show you some text, its coming from my current
-console session.  We should make it really easy to take code from the console
-and send it to people.
-
-`cat something | haste` # http://hastebin.com/1238193
-
-You can even take this a step further, and cut out the last step of copying the
-URL with:
-
-* osx: `cat something | haste | pbcopy`
-* linux: `cat something | haste | xsel`
-* windows: check out [WinHaste](https://github.com/ajryan/WinHaste)
-
-After running that, the STDOUT output of `cat something` will show up at a URL
-which has been conveniently copied to your clipboard.
-
-That's all there is to that, and you can install it with `gem install haste`
-right now.
-  * osx: you will need to have an up to date version of Xcode
-  * linux: you will need to have rubygems and ruby-devel installed
 
 ## Duration
 
-Pastes will stay for 30 days from their last view.  They may be removed earlier
+Pastes will stay for 30 days from their last view. They may be removed earlier
 and without notice.
 
-## Privacy
+This service is intended to enable quickly sharing logs, screenshots or other 
+snippets for quick resolution of support issues.
 
-While the contents of hastebin.com are not directly crawled by any search robot
-that obeys "robots.txt", there should be no great expectation of privacy.  Post
-things at your own risk. Not responsible for any loss of data or removed
-pastes.
+## Sharing Text
 
-## Open Source
+Type or paste text into the new document editor.
 
-Haste can easily be installed behind your network, and it's all open source!
+Syntax highlighting will attempt to auto-detect a proper style and apply when 
+viewing the document.
 
-* [haste-client](https://github.com/seejohnrun/haste-client)
-* [haste-server](https://github.com/seejohnrun/haste-server)
+Shortcuts are available to make creating and saving documents faster:
 
-## Author
+(Mac users can use Cmd instead of Ctrl)
 
-Code by John Crepezzi <john.crepezzi@gmail.com>
-Key Design by Brian Dawson <bridawson@gmail.com>
+Ctrl + N: Create new document (use when on a current page like this one)
+Ctrl + S: Saves the text to a new document (use after typing/pasting on page)
+Ctrl + E: Edit the current document (this will be saved to a brand new link)
+Ctrl + D: Load raw text (useful when you want to save the document to disk)
+
+## Sharing Files
+
+To share screenshots or log files (or zip), simply drag the file from your 
+desktop onto the page. After the upload has finished you will be redirected 
+to the file's location, which you can then share.
+
+## Issues
+
+Report questions/issues to Christopher Speck.

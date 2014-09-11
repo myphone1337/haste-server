@@ -29,7 +29,8 @@
     "type": "redis",
     "host": "localhost",
     "port": 6379,
-    "db": 1
+    "db": 1,
+    "expire": 2592000
   },
 
   "documents": {
