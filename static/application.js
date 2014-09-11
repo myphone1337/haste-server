@@ -25,6 +25,7 @@ haste_document.prototype.load = function(key, callback, lang) {
       _this.locked = true;
       _this.key = key;
       _this.data = data;
+
       try {
         var high;
         if (lang === 'txt') {
@@ -219,11 +220,16 @@ haste.prototype.removeLineNumbers = function() {
 // Load a document and show it
 haste.prototype.loadDocument = function(key) {
   // Split the key up
-  var parts = key.split('.', 2);
+  var ext = '';
+  var extIndex = key.lastIndexOf('.');
+  if (extIndex > -1 && extIndex < key.length - 1) {
+    ext = key.substring(extIndex + 1);
+    key = key.substring(0, extIndex);
+  }
   // Ask for what we want
   var _this = this;
   _this.doc = new haste_document();
-  _this.doc.load(parts[0], function(ret) {
+  _this.doc.load(key, function(ret) {
     if (ret) {
       _this.$code.html(ret.value);
       _this.setTitle(ret.key);
@@ -235,7 +241,7 @@ haste.prototype.loadDocument = function(key) {
     else {
       _this.newDocument();
     }
-  }, this.lookupTypeByExtension(parts[1]));
+  }, this.lookupTypeByExtension(ext));
 };
 
 // Duplicate the current document - only if locked
@@ -368,6 +374,9 @@ haste.prototype.loadRecentPosts = function() {
         var extIndex = title.lastIndexOf('.');
         if (extIndex > -1) {
           ext = title.substring(extIndex);
+        }
+        if (item.syntax) {
+          ext = '.' + item.syntax;
         }
         
         if (!title) title = item.key;
