@@ -140,6 +140,10 @@ var apiServe = connectRoute(function(router) {
   router.get('/recent', function(request, response, next) {
     return documentHandler.handleRecent(request, response);
   });
+  // get metadata for keys
+  router.post('/keys', function(request, response, next) {
+    return documentHandler.handleKeys(request, response);
+  });
   // if the previous static-serving module didn't respond to the resource, 
   // forward to next with index.html and the web client application will request the doc based on the url
   router.get('/:id', function(request, response, next) {
