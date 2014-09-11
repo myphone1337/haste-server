@@ -26,10 +26,10 @@ Shortcuts are available to make creating and saving documents faster:
 
 (Mac users can use Cmd instead of Ctrl)
 
-Ctrl + N: Create new document (use when on a current page like this one)
-Ctrl + S: Saves the text to a new document (use after typing/pasting on page)
-Ctrl + E: Edit the current document (this will be saved to a brand new link)
-Ctrl + D: Load raw text (useful when you want to save the document to disk)
+* Ctrl + N: Create new document (use when on a current page like this one)
+* Ctrl + S: Saves the text to a new document (use after typing/pasting on page)
+* Ctrl + E: Edit the current document (this will be saved to a brand new link)
+* Ctrl + D: Load raw text (useful when you want to save the document to disk)
 
 ## Sharing Files
 
