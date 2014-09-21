@@ -37,9 +37,9 @@
 
   "irc": {
     "nick": "haste",
-    "altnicks": ["haste_", "hastebin_"],
+    "altnicks": ["haste_", "hastebin", "hastebin_"],
     "server": "irc.freenode.net",
-    "channel": "#spirc",
+    "channels": ["#spirc"],
     "url": "http://localhost:7777/"
   }
 

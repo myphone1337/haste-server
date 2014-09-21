@@ -160,7 +160,7 @@ var apiServe = connectRoute(function(router) {
     return documentHandler.handleKeys(request, response);
   });
   // notify IRC of document
-  router.get('/irc/notify/:id', function(request, response, next) {
+  router.get('/irc/privmsg/:chan/:id', function(request, response, next) {
     if (ircHandler) {
       return ircHandler.handleNotify(request, response);
     }
