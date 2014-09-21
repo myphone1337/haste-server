@@ -10,6 +10,7 @@ var connectRoute = require('connect-route');
 var st = require('st');
 
 var DocumentHandler = require('./lib/document_handler');
+var IrcHandler = require('./lib/irchandler');
 
 // Load the configuration and set some defaults
 var config = JSON.parse(fs.readFileSync('./config.js', 'utf8'));
@@ -47,6 +48,20 @@ var pwOptions = config.keyGenerator || {};
 pwOptions.type = pwOptions.type || 'random';
 var gen = require('./lib/key_generators/' + pwOptions.type);
 var keyGenerator = new gen(pwOptions);
+
+var ircHandler;
+if (config.irc) {
+  config.irc.log = {
+    info: function(){},
+    warn: function(line) {
+      winston.warn('irc: ' + line);
+    },
+    error: function(line) {
+      winston.error('irc: ' + line);
+    }
+  };
+  ircHandler = new IrcHandler(preferredStore, config.irc);
+}
 
 // Configure the document handler
 var documentHandler = new DocumentHandler({
@@ -143,6 +158,12 @@ var apiServe = connectRoute(function(router) {
   // get metadata for keys
   router.post('/keys', function(request, response, next) {
     return documentHandler.handleKeys(request, response);
+  });
+  // notify IRC of document
+  router.get('/irc/notify/:id', function(request, response, next) {
+    if (ircHandler) {
+      return ircHandler.handleNotify(request, response);
+    }
   });
   // if the previous static-serving module didn't respond to the resource, 
   // forward to next with index.html and the web client application will request the doc based on the url
