@@ -42,11 +42,11 @@ textarea {
 	position:fixed;
 	left:0;
 	top:0;
-	width:150px;
+	width:170px;
 }
 
 #textcontent {
-	margin:10px 0 0 195px;
+	margin:10px 0 0 215px;
 	height:98%;
 }
 
@@ -59,7 +59,7 @@ textarea {
 	font-size: 13px;
 	font-family: monospace;
 	text-align: right;
-	margin:10px 1em 0 150px;
+	margin:10px 1em 0 170px;
 }
 
 #pastebin {
@@ -195,6 +195,10 @@ textarea {
 #box2 .function.raw { background-position: -116px top; }
 #box2 .function.enabled.raw { background-position: -116px center; }
 #box2 .function.enabled.raw:hover { background-position: -116px bottom; }
+
+#box2 .function.irc { background-position: -153px top; }
+#box2 .function.enabled.irc { background-position: -153px center; }
+#box2 .function.enabled.irc:hover { background-position: -153px bottom; }
 
 #messages {
 	position:fixed;

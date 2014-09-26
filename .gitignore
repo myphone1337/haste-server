@@ -6,3 +6,4 @@ data
 *.DS_Store
 haste-server.js.log
 static/application.min.js
+static/function-icons.pxm

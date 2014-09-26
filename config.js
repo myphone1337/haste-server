@@ -35,6 +35,14 @@
 
   "documents": {
     "about": "./about.md"
+  },
+
+  "irc": {
+    "nick": "haste",
+    "altnicks": ["haste_", "hastebin", "hastebin_"],
+    "server": "irc.freenode.net",
+    "channels": ["#spirc"],
+    "url": "http://localhost:7777/"
   }
 
 }
