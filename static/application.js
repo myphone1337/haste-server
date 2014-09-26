@@ -89,7 +89,7 @@ haste_document.prototype.save = function(data, callback) {
 
 var haste = function(appName, options) {
   this.appName = appName;
-  this.ircChan = 'spirc';
+  this.ircChan = 'support';
   this.$textarea = $('textarea');
   this.$box = $('#box');
   this.$code = $('#box code');
