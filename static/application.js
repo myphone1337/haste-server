@@ -314,10 +314,10 @@ haste.prototype.duplicateDocument = function() {
 
 // Lock the current document
 haste.prototype.lockDocument = function(cb_aftersave) {
+  var _this = this;
   if (_this.$textarea.val().replace(/^\s+|\s+$/g, '') === '') {
     return;
   }
-  var _this = this;
   this.doc.save(this.$textarea.val(), function(err, ret) {
     if (err) {
       _this.showMessage(err.message, 'error');
@@ -336,7 +336,7 @@ haste.prototype.configureButtons = function() {
       label: 'Save',
       shortcutDescription: 'ctrl + s',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && (evt.keyCode === 83);
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && (evt.keyCode === 83);
       },
       action: function() {
         _this.lockDocument(function(ret) {
@@ -348,7 +348,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .new'),
       label: 'New',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 78  
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 78  
       },
       shortcutDescription: 'ctrl + n',
       action: function() {
@@ -359,7 +359,8 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .duplicate'),
       label: 'Duplicate & Edit',
       shortcut: function(evt) {
-        return _this.doc.locked && (evt.ctrlKey || evt.metaKey) && evt.keyCode === 69;
+        return _this.doc.locked
+                && (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 69;
       },
       shortcutDescription: 'ctrl + e',
       action: function() {
@@ -370,7 +371,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .raw'),
       label: 'Just Text',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 68;
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 68;
       },
       shortcutDescription: 'ctrl + d',
       action: function() {
@@ -383,7 +384,7 @@ haste.prototype.configureButtons = function() {
       $where: null,
       label: 'Recent Posts',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && evt.keyCode == 77;
+        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && !evt.altKey && evt.keyCode == 77;
       },
       shortcutDescription: 'ctrl + shift + m',
       action: function() {
@@ -395,7 +396,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .irc'),
       label: 'Post to IRC',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.keyCode == 73;
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode == 73;
       },
       shortcutDescription: 'ctrl + i',
       action: function() {
