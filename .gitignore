@@ -5,3 +5,4 @@ node_modules
 data
 *.DS_Store
 static/application.min.js
+static/function-icons.pxm
