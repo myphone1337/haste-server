@@ -89,6 +89,7 @@ haste_document.prototype.save = function(data, callback) {
 
 var haste = function(appName, options) {
   this.appName = appName;
+  this.ircChan = 'spirc';
   this.$textarea = $('textarea');
   this.$box = $('#box');
   this.$code = $('#box code');
@@ -117,7 +118,7 @@ var haste = function(appName, options) {
       window.location.assign(href);
     },
     onUploadError: function(id, message) {
-      _this.showMessage(message);
+      _this.showMessage(message, 'error');
     }
   };
   $('body').dmUploader(fileUploadOpts);
@@ -140,12 +141,12 @@ haste.prototype.showMessage = function(msg, cls) {
 
 // Show the light key
 haste.prototype.lightKey = function() {
-  this.configureKey(['new', 'save']);
+  this.configureKey(['new', 'save', 'irc']);
 };
 
 // Show the full key
 haste.prototype.fullKey = function() {
-  this.configureKey(['new', 'duplicate', 'raw']);
+  this.configureKey(['new', 'duplicate', 'raw', 'irc']);
 };
 
 // Set the key up for certain things to be enabled
@@ -312,14 +313,17 @@ haste.prototype.duplicateDocument = function() {
 };
 
 // Lock the current document
-haste.prototype.lockDocument = function() {
+haste.prototype.lockDocument = function(cb_aftersave) {
+  if (_this.$textarea.val().replace(/^\s+|\s+$/g, '') === '') {
+    return;
+  }
   var _this = this;
   this.doc.save(this.$textarea.val(), function(err, ret) {
     if (err) {
       _this.showMessage(err.message, 'error');
     }
-    else if (ret) {
-      window.location.assign('/' + ret.key);
+    else if (ret && cb_aftersave) {
+      cb_aftersave(ret); 
     }
   });
 };
@@ -335,9 +339,9 @@ haste.prototype.configureButtons = function() {
         return (evt.ctrlKey || evt.metaKey) && (evt.keyCode === 83);
       },
       action: function() {
-        if (_this.$textarea.val().replace(/^\s+|\s+$/g, '') !== '') {
-          _this.lockDocument();
-        }
+        _this.lockDocument(function(ret) {
+          window.location.assign('/' + ret.key);
+        });
       }
     },
     {
@@ -379,12 +383,32 @@ haste.prototype.configureButtons = function() {
       $where: null,
       label: 'Recent Posts',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && evt.keyCode == 73;
+        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && evt.keyCode == 77;
       },
-      shortcutDescription: 'ctrl + shift + i',
+      shortcutDescription: 'ctrl + shift + m',
       action: function() {
         _this.showRecents = !_this.showRecents;
         _this.loadRecentPostsFromServer();
+      }
+    },
+    {
+      $where: $('#box2 .irc'),
+      label: 'Post to IRC',
+      shortcut: function(evt) {
+        return (evt.ctrlKey || evt.metaKey) && evt.keyCode == 73;
+      },
+      shortcutDescription: 'ctrl + i',
+      action: function() {
+        if (_this.doc.locked) {
+          _this.postToIrc(_this.doc.key);
+        }
+        else {
+          _this.lockDocument(function(ret) {
+            _this.postToIrc(ret.key, function(res) {
+              window.location.assign('/' + ret.key);
+            });
+          });
+        }
       }
     }
   ];
@@ -470,6 +494,20 @@ haste.prototype.loadRecentPostsFromServer = function() {
         items += '<li><a href="' + href + '">' + title + '</a></li>';
       }
       $('#recent-pastes ul').html(items);
+    }
+  });
+};
+
+haste.prototype.postToIrc = function(key, cb) {
+  var _this = this;
+  $.ajax('/irc/privmsg/' + this.ircChan + '/' + key, {
+    type: 'get',
+    dataType: 'json',
+    success: function(res) {
+      _this.showMessage('Notified #' + _this.ircChan);
+      if (cb) {
+        cb(res);
+      }
     }
   });
 };
