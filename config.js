@@ -40,9 +40,9 @@
   "irc": {
     "nick": "haste",
     "altnicks": ["haste_", "hastebin", "hastebin_"],
-    "server": "napoleon.mimsoftware.com",
-    "channels": ["#support"],
-    "url": "http://reviewboard:7777/"
+    "server": "irc.freenode.net",
+    "channels": ["#spirc"],
+    "url": "http://localhost:7777/"
   }
 
 }
