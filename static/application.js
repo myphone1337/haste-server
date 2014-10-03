@@ -496,6 +496,7 @@ haste.prototype.configureButton = function(options) {
 haste.prototype.configureShortcuts = function() {
   var _this = this;
   $(document.body).keydown(function(evt) {
+    evt.keyCode = evt.charCode ? evt.charCode : evt.keyCode ? evt.keyCode : 0;
     var button;
     for (var i = 0 ; i < _this.buttons.length; i++) {
       button = _this.buttons[i];
