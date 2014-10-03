@@ -14,40 +14,84 @@ haste_document.prototype.htmlEscape = function(s) {
 };
 
 // Get this document from the server and lock it here
-haste_document.prototype.load = function(key, callback, lang) {
+haste_document.prototype.load = function(key, haste, callback, lang) {
   var _this = this;
-  $.ajax('/docs/' + key, {
-    type: 'get',
-    headers: {
-      accept: 'text/plain'
-    },
-    success: function(data) {
-      _this.locked = true;
-      _this.key = key;
-      _this.data = data;
 
-      try {
-        var high;
-        if (lang === 'txt') {
-          high = { value: _this.htmlEscape(data) };
-        } else if (lang) {
-          high = hljs.highlight(lang, data);
-        } else {
+  var parseResponseAsText = function() {
+    haste.$pastebin.show();
+    haste.$preview.hide();
+
+    $.ajax('/docs/' + key, {
+      type: 'get',
+      headers: {
+        accept: 'text/plain'
+      },
+      success: function(data) {
+        _this.locked = true;
+        _this.key = key;
+        _this.data = data;
+
+        try {
+          var high;
+          if (lang === 'txt') {
+            high = { value: _this.htmlEscape(data) };
+          } else if (lang) {
+            high = hljs.highlight(lang, data);
+          } else {
+            high = hljs.highlightAuto(data);
+          }
+        } catch(err) {
+          // failed highlight, fall back on auto
           high = hljs.highlightAuto(data);
         }
-      } catch(err) {
-        // failed highlight, fall back on auto
-        high = hljs.highlightAuto(data);
+
+        callback({
+          value: high.value,
+          key: key,
+          language: high.language || lang,
+          lineCount: data.split("\n").length
+        });
+      },
+      error: function(err) {
+        callback(false);
       }
-      callback({
-        value: high.value,
-        key: key,
-        language: high.language || lang,
-        lineCount: data.split("\n").length
-      });
+    });
+  };
+
+  $.ajax('/docs/' + key, {
+    type: 'head',
+    success: function(data, status, xhr) {
+      var metadata = {
+        key: xhr.getResponseHeader('x-haste-key'),
+        name: xhr.getResponseHeader('x-haste-name'),
+        size: xhr.getResponseHeader('x-haste-size'),
+        syntax: xhr.getResponseHeader('x-haste-syntax'),
+        mimetype: xhr.getResponseHeader('x-haste-mimetype'),
+        encoding: xhr.getResponseHeader('x-haste-encoding'),
+        time: xhr.getResponseHeader('x-haste-time'),
+      };
+      if (metadata.mimetype.indexOf('text') > -1) {
+        parseResponseAsText();
+      }
+      else {
+        haste.$pastebin.hide();
+        haste.$preview.show();
+
+        metadata.locked = true;
+        haste.doc = metadata;
+
+        haste.updateRecents();
+        haste.setViewNonTextDocMenu();
+
+        if (metadata.mimetype.indexOf('image') > -1) {
+          haste.$preview.html('<img src="/docs/' + metadata.key + '"/>');
+        }
+        else {
+        }
+      }
     },
     error: function(err) {
-      callback(false);
+      haste.showMessage(err, 'error');
     }
   });
 };
@@ -96,6 +140,8 @@ var haste = function(appName, options) {
   this.$linenos = $('#linenos');
   this.$recents = $('#recent-pastes ul');
   this.$recentsTitle = $('#recent-pastes-title');
+  this.$pastebin = $('#pastebin');
+  this.$preview = $('#preview');
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
@@ -111,11 +157,7 @@ var haste = function(appName, options) {
       if (extIndex > -1) {
         ext = data.metadata.name.substring(extIndex);
       }
-      var href = '/' + data.key + ext;
-      if (data.metadata.name && data.metadata.mimetype.indexOf('text') < 0) {
-        href = '/docs' + href;
-      }
-      window.location.assign(href);
+      window.location.assign('/' + data.key + ext);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message, 'error');
@@ -140,17 +182,33 @@ haste.prototype.showMessage = function(msg, cls) {
 };
 
 // Show the light key
-haste.prototype.lightKey = function() {
-  this.configureKey(['new', 'save', 'irc']);
+haste.prototype.setNewDocMenu = function() {
+  this.enableMenuItems(['new', 'save', 'irc']);
 };
 
 // Show the full key
-haste.prototype.fullKey = function() {
-  this.configureKey(['new', 'duplicate', 'raw', 'irc']);
+haste.prototype.setViewTextDocMenu = function() {
+  this.enableMenuItems(['new', 'edit', 'download', 'irc']);
 };
 
-// Set the key up for certain things to be enabled
-haste.prototype.configureKey = function(enable) {
+haste.prototype.setViewNonTextDocMenu = function() {
+  this.enableMenuItems(['new', 'download', 'irc']);
+};
+
+haste.prototype.disableMenuItems = function(disable) {
+  var $this, i = 0;
+  $('#box2 .function').each(function() {
+    $this = $(this);
+    for (i = 0; i < disable.length; i++) {
+      if ($this.hasClass(disable[i])) {
+        $this.removeClass('enabled');
+        return true;
+      }
+    }
+  });
+};
+
+haste.prototype.enableMenuItems = function(enable) {
   var $this, i = 0;
   $('#box2 .function').each(function() {
     $this = $(this);
@@ -175,12 +233,18 @@ haste.prototype.getRecents = function() {
 haste.prototype.updateRecents = function() {
   var _this = this;
   var recents = this.getRecents();
-  recents = recents.filter(function(item) {
-    return item !== _this.doc.key;
-  });
-  recents.unshift(_this.doc.key);
-  recents = recents.slice(0, recents.length > 20 ? 20 : recents.length);
-  localStorage.setItem('recents', JSON.stringify(recents));
+  var addthis = true;
+  for (var i in recents) {
+    if (recents[i] == _this.doc.key) {
+      addthis = false;
+      break;
+    }
+  }
+  if (addthis) {
+    recents.unshift(_this.doc.key);
+    recents = recents.slice(0, recents.length > 20 ? 20 : recents.length);
+    localStorage.setItem('recents', JSON.stringify(recents));
+  }
   this.loadRecentsList();
 };
 
@@ -209,9 +273,6 @@ haste.prototype.loadRecentsList = function() {
         
         if (!title) title = item.key + ext;
         var href = '/' + item.key + ext;
-        if (item.name && item.mimetype.indexOf('text') < 0) {
-          href = '/docs' + href;
-        }
         items += '<li><a href="' + href + '">' + title + '</a></li>';
       }
       $('#recent-pastes ul').html(items);
@@ -222,10 +283,12 @@ haste.prototype.loadRecentsList = function() {
 // Remove the current document (if there is one)
 // and set up for a new one
 haste.prototype.newDocument = function() {
+  this.$pastebin.show();
+  this.$preview.hide();
   this.$box.hide();
   this.doc = new haste_document();
   this.setTitle();
-  this.lightKey();
+  this.setNewDocMenu();
   this.$textarea.val('').show('fast', function() {
     this.focus();
   });
@@ -287,11 +350,11 @@ haste.prototype.loadDocument = function(key) {
   // Ask for what we want
   var _this = this;
   _this.doc = new haste_document();
-  _this.doc.load(key, function(ret) {
+  _this.doc.load(key, _this, function(ret) {
     if (ret) {
       _this.$code.html(ret.value);
       _this.setTitle(ret.key);
-      _this.fullKey();
+      _this.setViewTextDocMenu();
       _this.$textarea.val('').hide();
       _this.$box.show().focus();
       _this.addLineNumbers(ret.lineCount);
@@ -314,10 +377,10 @@ haste.prototype.duplicateDocument = function() {
 
 // Lock the current document
 haste.prototype.lockDocument = function(cb_aftersave) {
+  var _this = this;
   if (_this.$textarea.val().replace(/^\s+|\s+$/g, '') === '') {
     return;
   }
-  var _this = this;
   this.doc.save(this.$textarea.val(), function(err, ret) {
     if (err) {
       _this.showMessage(err.message, 'error');
@@ -336,7 +399,7 @@ haste.prototype.configureButtons = function() {
       label: 'Save',
       shortcutDescription: 'ctrl + s',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && (evt.keyCode === 83);
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && (evt.keyCode === 83);
       },
       action: function() {
         _this.lockDocument(function(ret) {
@@ -348,7 +411,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .new'),
       label: 'New',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 78  
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 78  
       },
       shortcutDescription: 'ctrl + n',
       action: function() {
@@ -356,10 +419,11 @@ haste.prototype.configureButtons = function() {
       }
     },
     {
-      $where: $('#box2 .duplicate'),
-      label: 'Duplicate & Edit',
+      $where: $('#box2 .edit'),
+      label: 'Edit',
       shortcut: function(evt) {
-        return _this.doc.locked && (evt.ctrlKey || evt.metaKey) && evt.keyCode === 69;
+        return _this.doc.locked
+                && (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 69;
       },
       shortcutDescription: 'ctrl + e',
       action: function() {
@@ -367,10 +431,10 @@ haste.prototype.configureButtons = function() {
       }
     },
     {
-      $where: $('#box2 .raw'),
-      label: 'Just Text',
+      $where: $('#box2 .download'),
+      label: 'Download',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.keyCode === 68;
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 68;
       },
       shortcutDescription: 'ctrl + d',
       action: function() {
@@ -380,22 +444,10 @@ haste.prototype.configureButtons = function() {
       }
     },
     {
-      $where: null,
-      label: 'Recent Posts',
-      shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.shiftKey && evt.keyCode == 77;
-      },
-      shortcutDescription: 'ctrl + shift + m',
-      action: function() {
-        _this.showRecents = !_this.showRecents;
-        _this.loadRecentPostsFromServer();
-      }
-    },
-    {
       $where: $('#box2 .irc'),
-      label: 'Post to IRC',
+      label: 'Notify IRC',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && evt.keyCode == 73;
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode == 73;
       },
       shortcutDescription: 'ctrl + i',
       action: function() {
@@ -444,6 +496,7 @@ haste.prototype.configureButton = function(options) {
 haste.prototype.configureShortcuts = function() {
   var _this = this;
   $(document.body).keydown(function(evt) {
+    evt.keyCode = evt.charCode ? evt.charCode : evt.keyCode ? evt.keyCode : 0;
     var button;
     for (var i = 0 ; i < _this.buttons.length; i++) {
       button = _this.buttons[i];
@@ -456,54 +509,13 @@ haste.prototype.configureShortcuts = function() {
   });
 };
 
-// Load recent posts to show in sidebar
-haste.prototype.loadRecentPostsFromServer = function() {
-  if (!this.showRecents) {
-    this.$recents.html('');
-    this.$recents.hide();
-    this.$recentsTitle.hide();
-    return;
-  }
-
-  this.$recents.show();
-  this.$recentsTitle.show();
-
-  $.ajax('/recent', {
-    type: 'get',
-    dataType: 'json',
-    success: function(res) {
-      var items = '';
-      for (var i in res) {
-        var item = res[i];
-
-        var title = item.name;
-        var ext = '';
-        var extIndex = title.lastIndexOf('.');
-        if (extIndex > -1) {
-          ext = title.substring(extIndex);
-        }
-        if (item.syntax) {
-          ext = '.' + item.syntax;
-        }
-        
-        if (!title) title = item.key + ext;
-        var href = '/' + item.key + ext;
-        if (item.name && item.mimetype.indexOf('text') < 0) {
-          href = '/docs' + href;
-        }
-        items += '<li><a href="' + href + '">' + title + '</a></li>';
-      }
-      $('#recent-pastes ul').html(items);
-    }
-  });
-};
-
 haste.prototype.postToIrc = function(key, cb) {
   var _this = this;
   $.ajax('/irc/privmsg/' + this.ircChan + '/' + key, {
     type: 'get',
     dataType: 'json',
     success: function(res) {
+      _this.disableMenuItems(['irc']);
       _this.showMessage('Notified #' + _this.ircChan);
       if (cb) {
         cb(res);

@@ -151,6 +151,10 @@ var apiServe = connectRoute(function(router) {
     var skipExpire = !!config.documents[request.params.id];
     return documentHandler.handleGet(request, response, skipExpire);
   });
+  // get document metadata
+  router.head('/docs/:id', function(request, response, next) {
+    return documentHandler.handleHead(request, response);
+  });
   // get recent documents
   router.get('/recent', function(request, response, next) {
     return documentHandler.handleRecent(request, response);
