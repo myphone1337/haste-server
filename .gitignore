@@ -1,8 +1,10 @@
 npm-debug.log
-node_modules
+node_modules/*
+!node_modules/connect-route
 *.swp
 *.swo
 data
 *.DS_Store
 static/application.min.js
 static/function-icons.pxm
+

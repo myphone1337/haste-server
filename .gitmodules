@@ -1,0 +1,3 @@
+[submodule "node_modules/connect-route"]
+	path = node_modules/connect-route
+	url = https://github.com/neandrake/connect-route
