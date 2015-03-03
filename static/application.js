@@ -6,16 +6,31 @@ var haste_document = function() {
 
 // Escapes HTML tag characters
 haste_document.prototype.htmlEscape = function(s) {
-  return s
+  return (s == null ? '' : s
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
     .replace(/</g, '&lt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;'));
 };
 
 // Get this document from the server and lock it here
 haste_document.prototype.load = function(key, haste, callback, lang) {
   var _this = this;
+
+  var parseResponseAsRedirect = function() {
+    _this.locked = true;
+    _this.key = key;
+    _this.data = "URL Redirect";
+
+    var high = { value: _this.htmlEscape(_this.data) };
+
+    callback({
+      value: high.value,
+      key: key,
+      language: 'txt',
+      lineCount: _this.data.split("\n").length
+    });
+  };
 
   var parseResponseAsText = function() {
     haste.$pastebin.show();
@@ -26,7 +41,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       headers: {
         accept: 'text/plain'
       },
-      success: function(data) {
+      success: function(data, status, xhr) {
         _this.locked = true;
         _this.key = key;
         _this.data = data;
@@ -68,10 +83,13 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         syntax: xhr.getResponseHeader('x-haste-syntax'),
         mimetype: xhr.getResponseHeader('x-haste-mimetype'),
         encoding: xhr.getResponseHeader('x-haste-encoding'),
-        time: xhr.getResponseHeader('x-haste-time'),
+        time: xhr.getResponseHeader('x-haste-time')
       };
       if (metadata.mimetype.indexOf('text') > -1) {
         parseResponseAsText();
+      }
+      else if (metadata.mimetype.indexOf('url-redirect') == 0) {
+        parseResponseAsRedirect();
       }
       else {
         haste.$pastebin.hide();
@@ -85,8 +103,6 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
 
         if (metadata.mimetype.indexOf('image') > -1) {
           haste.$preview.html('<img src="/docs/' + metadata.key + '"/>');
-        }
-        else {
         }
       }
     },
