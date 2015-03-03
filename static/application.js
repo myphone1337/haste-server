@@ -249,11 +249,9 @@ haste.prototype.updateRecents = function() {
 };
 
 haste.prototype.loadRecentsList = function() {
-  var recents = this.getRecents();
-  var data = JSON.stringify(recents);
-  $.ajax('/keys', {
-    type: 'post',
-    data: data,
+  var recents = this.getRecents().join(',');
+  $.ajax('/keys/' + recents, {
+    type: 'get',
     contentType: 'application/json; charset=utf-8',
     dataType: 'json',
     success: function(res) {

@@ -159,7 +159,7 @@ var apiServe = connectRoute(function(router) {
     return documentHandler.handleRecent(request, response);
   });
   // get metadata for keys
-  router.post('/keys', function(request, response, next) {
+  router.get('/keys/:keys', function(request, response, next) {
     return documentHandler.handleKeys(request, response);
   });
   // notify IRC of document
