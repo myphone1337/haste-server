@@ -31,13 +31,12 @@ if (config.logging) {
   }
 }
 
-// build the store from the config on-demand - so that we don't load it
-// for statics
+// build the store from the config on-demand - so that we don't load it for statics
 if (!config.storage) {
-  config.storage = { type: 'file' };
+  config.storage = { type: 'redis' };
 }
 if (!config.storage.type) {
-  config.storage.type = 'file';
+  config.storage.type = 'redis';
 }
 
 var Store = require('./lib/document_stores/' + config.storage.type);
@@ -45,7 +44,7 @@ var preferredStore = new Store(config.storage);
 
 // Pick up a key generator
 var pwOptions = config.keyGenerator || {};
-pwOptions.type = pwOptions.type || 'random';
+pwOptions.type = pwOptions.type || 'keygen';
 var gen = require('./lib/key_generators/' + pwOptions.type);
 var keyGenerator = new gen(pwOptions);
 

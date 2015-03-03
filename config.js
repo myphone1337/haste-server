@@ -20,7 +20,7 @@
   ],
 
   "keyGenerator": {
-    "type": "phonetic"
+    "type": "keygen"
   },
 
   "storage": {
