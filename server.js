@@ -142,39 +142,48 @@ var staticServe = st({
 
 var apiServe = connectRoute(function(router) {
   // add documents
-  router.post('/docs', function(request, response, next) {
+  router.post('docs', function(request, response, next) {
     return documentHandler.handlePost(request, response);
   });
   // get documents
-  router.get('/docs/:id', function(request, response, next) {
+  router.get('docs/:id', function(request, response, next) {
     var skipExpire = !!config.documents[request.params.id];
     return documentHandler.handleGet(request, response, skipExpire);
   });
   // get document metadata
-  router.head('/docs/:id', function(request, response, next) {
+  router.head('docs/:id', function(request, response, next) {
+    return documentHandler.handleHead(request, response);
+  });
+  // public URL to get documents
+  router.get('public/:id', function(request, response, next) {
+    var skipExpire = !!config.documents[request.params.id];
+    return documentHandler.handleGet(request, response, skipExpire);
+  });
+  // public URL to get document metadata
+  router.head('public/:id', function(request, response, next) {
     return documentHandler.handleHead(request, response);
   });
   // get recent documents
-  router.get('/recent', function(request, response, next) {
+  router.get('recent', function(request, response, next) {
     return documentHandler.handleRecent(request, response);
   });
   // get metadata for keys
-  router.get('/keys/:keys', function(request, response, next) {
+  router.get('keys/:keys', function(request, response, next) {
     return documentHandler.handleKeys(request, response);
   });
   // notify IRC of document
-  router.get('/irc/privmsg/:chan/:id', function(request, response, next) {
+  router.get('irc/privmsg/:chan/:id', function(request, response, next) {
     if (ircHandler) {
       return ircHandler.handleNotify(request, response);
     }
   });
-  // if the previous static-serving module didn't respond to the resource, 
+  // if the previous static-serving module didn't respond to the resource,
   // forward to next with index.html and the web client application will request the doc based on the url
-  router.get('/:id', function(request, response, next) {
+  router.get(':id', function(request, response, next) {
     // redirect to index.html, also clearing the previous 'st' module 'sturl' field generated
     // by the first staticServe module. if sturl isn't cleared out then this new request.url is not
     // looked at again.
-    request.url = '/index.html';
+    request.url = 'index.html';
     request.sturl = null;
     next();
   });

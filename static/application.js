@@ -36,7 +36,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
     haste.$pastebin.show();
     haste.$preview.hide();
 
-    $.ajax('/docs/' + key, {
+    $.ajax('docs/' + key, {
       type: 'get',
       headers: {
         accept: 'text/plain'
@@ -73,7 +73,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
     });
   };
 
-  $.ajax('/docs/' + key, {
+  $.ajax('docs/' + key, {
     type: 'head',
     success: function(data, status, xhr) {
       var metadata = {
@@ -107,7 +107,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       }
     },
     error: function(err) {
-      haste.showMessage(err, 'error');
+      haste.showMessage(err.statusText, 'error');
     }
   });
 };
@@ -119,7 +119,7 @@ haste_document.prototype.save = function(data, callback) {
   }
   this.data = data;
   var _this = this;
-  $.ajax('/docs', {
+  $.ajax('docs', {
     type: 'post',
     data: data,
     dataType: 'json',
@@ -162,10 +162,10 @@ var haste = function(appName, options) {
   this.configureShortcuts();
   this.configureButtons();
   this.loadRecentsList();
-  
+
   var _this = this;
   var fileUploadOpts = {
-    url: '/docs',
+    url: 'docs',
     dataType: 'json',
     onUploadSuccess: function(id, data) {
       var ext = '';
@@ -238,59 +238,64 @@ haste.prototype.enableMenuItems = function(enable) {
   });
 };
 
-haste.prototype.getRecents = function() {
-  var recents = localStorage.getItem('recents');
-  if (recents) {
-    return JSON.parse(recents);
-  }
-  return [];
+haste.prototype.getRecents = function(cb) {
+  $.ajax('recent', {
+    type: 'get',
+    contentType: 'application/json; charset=utf-8',
+    dataType: 'json',
+    success: function (res) {
+      cb(res.map(function (doc) { return doc.key; }));
+    }
+  });
 };
 
 haste.prototype.updateRecents = function() {
   var _this = this;
-  var recents = this.getRecents();
-  var addthis = true;
-  for (var i in recents) {
-    if (recents[i] == _this.doc.key) {
-      addthis = false;
-      break;
+  this.getRecents(function (recents) {
+    var addthis = true;
+    for (var i in recents) {
+      if (recents[i] == _this.doc.key) {
+        addthis = false;
+        break;
+      }
     }
-  }
-  if (addthis) {
-    recents.unshift(_this.doc.key);
-    recents = recents.slice(0, recents.length > 20 ? 20 : recents.length);
-    localStorage.setItem('recents', JSON.stringify(recents));
-  }
-  this.loadRecentsList();
+    if (addthis) {
+      recents.unshift(_this.doc.key);
+      recents = recents.slice(0, recents.length > 20 ? 20 : recents.length);
+      //localStorage.setItem('recents', JSON.stringify(recents));
+    }
+    _this.loadRecentsList();
+  });
 };
 
 haste.prototype.loadRecentsList = function() {
-  var recents = this.getRecents().join(',');
-  $.ajax('/keys/' + recents, {
-    type: 'get',
-    contentType: 'application/json; charset=utf-8',
-    dataType: 'json',
-    success: function(res) {
-      var items = '';
-      for (var i in res) {
-        var item = res[i];
+  this.getRecents(function (recents) {
+    $.ajax('keys/' + recents.join(','), {
+      type: 'get',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      success: function(res) {
+        var items = '';
+        for (var i in res) {
+          var item = res[i];
 
-        var title = item.name;
-        var ext = '';
-        var extIndex = title.lastIndexOf('.');
-        if (extIndex > -1) {
-          ext = title.substring(extIndex);
+          var title = item.name;
+          var ext = '';
+          var extIndex = title.lastIndexOf('.');
+          if (extIndex > -1) {
+            ext = title.substring(extIndex);
+          }
+          if (item.syntax) {
+            ext = '.' + item.syntax;
+          }
+
+          if (!title) title = item.key + ext;
+          var href = '' + item.key + ext;
+          items += '<li><a href="' + href + '">' + title + '</a></li>';
         }
-        if (item.syntax) {
-          ext = '.' + item.syntax;
-        }
-        
-        if (!title) title = item.key + ext;
-        var href = '/' + item.key + ext;
-        items += '<li><a href="' + href + '">' + title + '</a></li>';
+        $('#recent-pastes ul').html(items);
       }
-      $('#recent-pastes ul').html(items);
-    }
+    });
   });
 }
 
@@ -400,7 +405,7 @@ haste.prototype.lockDocument = function(cb_aftersave) {
       _this.showMessage(err.message, 'error');
     }
     else if (ret && cb_aftersave) {
-      cb_aftersave(ret); 
+      cb_aftersave(ret);
     }
   });
 };
@@ -417,7 +422,7 @@ haste.prototype.configureButtons = function() {
       },
       action: function() {
         _this.lockDocument(function(ret) {
-          window.location.assign('/' + ret.key);
+          window.location.assign(ret.key);
         });
       }
     },
@@ -425,7 +430,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .new'),
       label: 'New',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 78  
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 78
       },
       shortcutDescription: 'ctrl + n',
       action: function() {
@@ -453,7 +458,7 @@ haste.prototype.configureButtons = function() {
       shortcutDescription: 'ctrl + d',
       action: function() {
         if (_this.doc.key) {
-          window.location.assign('/docs/' + _this.doc.key);
+          window.location.assign('docs/' + _this.doc.key);
         }
       }
     },
@@ -525,7 +530,7 @@ haste.prototype.configureShortcuts = function() {
 
 haste.prototype.postToIrc = function(key, cb) {
   var _this = this;
-  $.ajax('/irc/privmsg/' + this.ircChan + '/' + key, {
+  $.ajax('irc/privmsg/' + this.ircChan + '/' + key, {
     type: 'get',
     dataType: 'json',
     success: function(res) {
