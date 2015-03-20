@@ -176,7 +176,7 @@ var haste = function(appName, options) {
       if (extIndex > -1) {
         ext = data.metadata.name.substring(extIndex);
       }
-      window.location.assign('/' + data.key + ext);
+      window.location.assign(data.key + ext);
     },
     onUploadError: function(id, message) {
       _this.showMessage(message, 'error');
@@ -483,7 +483,7 @@ haste.prototype.configureButtons = function() {
         else {
           _this.lockDocument(function(ret) {
             _this.postToIrc(ret.key, function(res) {
-              window.location.assign('/' + ret.key);
+              window.location.assign(ret.key);
             });
           });
         }
