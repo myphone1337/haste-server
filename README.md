@@ -10,6 +10,8 @@ Personal fork of haste-server to include several modifications for my needs
  - Updated library dependencies
  - Shortcuts respond to mac command key
 
+Haste is an open-source pastebin software.
+
 ## Installation
 ### Prerequisites
  - Node: 0.10.31+
