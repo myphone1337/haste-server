@@ -183,7 +183,7 @@ var apiServe = connectRoute(function(router) {
     // redirect to index.html, also clearing the previous 'st' module 'sturl' field generated
     // by the first staticServe module. if sturl isn't cleared out then this new request.url is not
     // looked at again.
-    request.url = 'index.html';
+    request.url = '/index.html';
     request.sturl = null;
     next();
   });

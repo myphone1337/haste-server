@@ -85,6 +85,8 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         encoding: xhr.getResponseHeader('x-haste-encoding'),
         time: xhr.getResponseHeader('x-haste-time')
       };
+      publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
+      haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
       if (metadata.mimetype.indexOf('text') > -1) {
         parseResponseAsText();
       }
@@ -102,7 +104,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         haste.setViewNonTextDocMenu();
 
         if (metadata.mimetype.indexOf('image') > -1) {
-          haste.$preview.html('<img src="/docs/' + metadata.key + '"/>');
+          haste.$preview.html('<img src="docs/' + metadata.key + '"/>');
         }
       }
     },
@@ -158,6 +160,7 @@ var haste = function(appName, options) {
   this.$recentsTitle = $('#recent-pastes-title');
   this.$pastebin = $('#pastebin');
   this.$preview = $('#preview');
+  this.$publicUrl = $('#public-url');
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
@@ -367,7 +370,7 @@ haste.prototype.loadDocument = function(key) {
     key = key.substring(0, extIndex);
   }
   // Ask for what we want
-  var _this = this;
+  var _this = this, publicUrl;
   _this.doc = new haste_document();
   _this.doc.load(key, _this, function(ret) {
     if (ret) {
@@ -378,6 +381,8 @@ haste.prototype.loadDocument = function(key) {
       _this.$box.show().focus();
       _this.addLineNumbers(ret.lineCount);
       _this.updateRecents();
+      publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
+      _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
     }
     else {
       _this.newDocument();
@@ -423,6 +428,8 @@ haste.prototype.configureButtons = function() {
       action: function() {
         _this.lockDocument(function(ret) {
           window.location.assign(ret.key);
+          var publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
+          _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
         });
       }
     },
