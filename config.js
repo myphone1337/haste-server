@@ -16,8 +16,7 @@
     "type": "keygen"
   },
   "storage": {
-    "type": "file",
-    "path": "./data"
+    "type": "cozydb"
   },
   "documents": {
   }
