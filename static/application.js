@@ -207,11 +207,11 @@ haste.prototype.setNewDocMenu = function() {
 
 // Show the full key
 haste.prototype.setViewTextDocMenu = function() {
-  this.enableMenuItems(['new', 'edit', 'download', 'irc']);
+  this.enableMenuItems(['new', 'edit', 'download', 'irc', 'delete']);
 };
 
 haste.prototype.setViewNonTextDocMenu = function() {
-  this.enableMenuItems(['new', 'download', 'irc']);
+  this.enableMenuItems(['new', 'download', 'irc', 'delete']);
 };
 
 haste.prototype.disableMenuItems = function(disable) {
@@ -399,6 +399,23 @@ haste.prototype.duplicateDocument = function() {
   }
 };
 
+// Delete the current document - only if locked
+haste.prototype.deleteDocument = function() {
+  var _this = this;
+  if (this.doc.locked) {
+    $.ajax('docs/' + this.doc.key, {
+      type: 'delete',
+      success: function(res) {
+        window.location.assign(window.location.pathname.replace(/[^\/]*$/, ''));
+        _this.newDocument();
+      },
+      error: function(res) {
+        _this.showMessage('Error deleting document', 'error');
+      }
+    });
+  }
+};
+
 // Lock the current document
 haste.prototype.lockDocument = function(cb_aftersave) {
   var _this = this;
@@ -466,6 +483,15 @@ haste.prototype.configureButtons = function() {
       action: function() {
         if (_this.doc.key) {
           window.location.assign('docs/' + _this.doc.key);
+        }
+      }
+    },
+    {
+      $where: $('#box2 .delete'),
+      label: 'Delete',
+      action: function() {
+        if (_this.doc.key) {
+          _this.deleteDocument();
         }
       }
     },

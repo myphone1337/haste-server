@@ -154,6 +154,10 @@ var apiServe = connectRoute(function(router) {
   router.head('docs/:id', function(request, response, next) {
     return documentHandler.handleHead(request, response);
   });
+  // delete document
+  router.delete('docs/:id', function(request, response, next) {
+    return documentHandler.handleDelete(request, response);
+  });
   // public URL to get documents
   router.get('public/:id', function(request, response, next) {
     var skipExpire = !!config.documents[request.params.id];
