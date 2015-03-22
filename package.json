@@ -21,6 +21,7 @@
     "connect-route": "git://github.com/neandrake/connect-route.git#bc44be0fac3e7ccda51221c07b428a5f3594bd06",
     "cozydb": "0.0.11",
     "mime": "1.2.11",
+    "printit": "^0.1.6",
     "spirc": "0.1.4",
     "st": "0.5.1",
     "uglify-js": "2.4.15",
