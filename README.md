@@ -1,31 +1,25 @@
-# Haste Service
+# Haste
 
-## About
-Personal fork of haste-server to include several modifications for my needs
-- Updated interface to not cover/block content
-- Ability to upload images/files
-- Ability to store metadata along with the paste/file
-- Compress pastes in datastore
-- Bug fixes
- - Updated library dependencies
- - Shortcuts respond to mac command key
+Haste is an open-source pastebin software.  This is a port of the original
+software, hacked so it can run on [Cozy Cloud](http://cozy.io), the Personal
+Platform as a service.
 
-Haste is an open-source pastebin software.
+## Basic Usage
 
-## Installation
-### Prerequisites
- - Node: 0.10.31+
- - NPM: 1.4.24+
- - Redis: Tested with 2.8.19, presumably anything from 2.0+ works, no idea about 1.x
+Type what you want me to see, click "Save", and then copy the public URL.  Send
+that URL to someone and they'll see what you see.
 
-### Setup
- - Clone the repository for the changeset/release desired
- - Copy `config.sample.js` to `config.js` and modify per your needs.
- - Run `npm install` from the base directory
- - Ensure redis-server is running
+To make a new entry, click "New" (or type 'control + n')
 
-#### Running Service (Development/Debug)
- - Run `npm start` from the base directory
+To easily retrieve your entries, you can name them by entering a title in the
+left column.  You can also chose the time each entry will be kept.
 
-#### Running Service (Production)
- - Configure init script to be run by system
+This version of Haste allow to share files.  You can drag’n’drop a file or
+select it with the button on the left.
+
+## Authors
+
+ - [original code](https://github.com/seejohnrun/haste-server) by John Crepezzi <john.crepezzi@gmail.com>, key Design by Brian Dawson <bridawson@gmail.com> ;
+ - [customizations](https://github.com/neandrake/haste-server) by Christopher Speck <die.drachen@gmail.com> ;
+ - port to Cozy and [more customizations](https://github.com/clochix/haste-server) by Clochix.
+

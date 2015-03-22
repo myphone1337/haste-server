@@ -19,6 +19,6 @@
     "type": "cozydb"
   },
   "documents": {
-    "about": "./about.md"
+    "readme": "./README.md"
   }
 }
