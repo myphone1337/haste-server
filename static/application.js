@@ -582,8 +582,8 @@ haste.prototype.configureButton = function(options) {
   });
   // Show the label
   options.$where.mouseenter(function(evt) {
-    $('#box3 .label').text(options.label);
-    $('#box3 .shortcut').text(options.shortcutDescription || '');
+    $('#box3 .label').html(options.label);
+    $('#box3 .shortcut').html(options.shortcutDescription || '&nbsp;');
   });
   // Hide the label
   options.$where.mouseleave(function(evt) {
