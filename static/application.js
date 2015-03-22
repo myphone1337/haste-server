@@ -61,6 +61,9 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         }
 
         callback({
+          name: data.name,
+          name: xhr.getResponseHeader('x-haste-name'),
+          expire: xhr.getResponseHeader('x-haste-expire'),
           value: high.value,
           key: key,
           language: high.language || lang,
@@ -79,6 +82,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       var metadata = {
         key: xhr.getResponseHeader('x-haste-key'),
         name: xhr.getResponseHeader('x-haste-name'),
+        expire: xhr.getResponseHeader('x-haste-expire'),
         size: xhr.getResponseHeader('x-haste-size'),
         syntax: xhr.getResponseHeader('x-haste-syntax'),
         mimetype: xhr.getResponseHeader('x-haste-mimetype'),
@@ -87,6 +91,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       };
       publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
       haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
+      haste.$expireDate.html(metadata.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(metadata.expire, 10)).toLocaleString());
       if (metadata.mimetype.indexOf('text') > -1) {
         parseResponseAsText();
       }
@@ -121,17 +126,24 @@ haste_document.prototype.save = function(data, callback) {
   }
   this.data = data;
   var _this = this;
+  var expire = $('#documentExpiration').val();
+  if (expire !== '') {
+    expire = new Date(new Date().getTime() + parseInt(expire, 10) * 60000).getTime();
+  }
   $.ajax('docs', {
     type: 'post',
     data: data,
     dataType: 'json',
     contentType: 'application/json; charset=utf-8',
     headers: {
-      'x-haste-name': $("[name=title]").val(),
+      'x-haste-name': $("#documentTitle").val(),
+      'x-haste-expire': expire
     },
     success: function(res) {
       _this.locked = true;
       _this.key = res.key;
+      $(".editing").hide();
+      $(".metas").show();
       var high = hljs.highlightAuto(data);
       callback(null, {
         value: high.value,
@@ -163,7 +175,9 @@ var haste = function(appName, options) {
   this.$recentsTitle = $('#recent-pastes-title');
   this.$pastebin = $('#pastebin');
   this.$preview = $('#preview');
-  this.$publicUrl = $('#public-url');
+  this.$documentTitle = $('#documentTitle');
+  this.$publicUrl = $('#publicUrl');
+  this.$expireDate = $('#expireDate');
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
@@ -318,7 +332,8 @@ haste.prototype.newDocument = function() {
     this.focus();
   });
   this.removeLineNumbers();
-  $("[name=title]").val('');
+  $("#documentTitle").val('');
+  $("#documentExpiration").val('1440'); // 1 day
 };
 
 // Map of common extensions
@@ -379,14 +394,16 @@ haste.prototype.loadDocument = function(key) {
   _this.doc.load(key, _this, function(ret) {
     if (ret) {
       _this.$code.html(ret.value);
-      _this.setTitle(ret.key);
+      _this.setTitle(ret.name || ret.key);
       _this.setViewTextDocMenu();
       _this.$textarea.val('').hide();
       _this.$box.show().focus();
       _this.addLineNumbers(ret.lineCount);
       _this.updateRecents();
       publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
+      _this.$documentTitle.html(ret.name || ret.key);
       _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
+      _this.$expireDate.html(ret.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(ret.expire, 10)).toLocaleString());
     }
     else {
       _this.newDocument();

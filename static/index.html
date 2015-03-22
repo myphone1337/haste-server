@@ -66,17 +66,37 @@
 				</div>
 			</div>
 
-      <div id="public-url"></div>
+      <div class="metas">
+        <div class="subtitle">Public URL</div>
+        <div id="publicUrl"></div>
+        <div id="documentTitle"></div>
+        <div id="expireDate"></div>
+      </div>
+      <div class="editing">
+        <div class="subtitle">Publish a file</div>
+        <div>
+          <input type="file" name="files[]" multiple="multiple" title="Click to add Files">
+        </div>
+        <div class="subtitle">Options</div>
+        <div>
+          <input type="text" name="title" id="documentTitle" size="16" placeholder="Title" /></label>
+        </div>
+        <div>
+          <select id="documentExpiration">
+            <option value="5"  >Expires in 5 minutes</option>
+            <option value="10" >Expires in 10 minutes</option>
+            <option value="60" >Expires in 1 hour</option>
+            <option value="1440"  >Expires in 1 day</option>
+            <option value="10080" >Expires in 7 days</option>
+            <option value="43200">Expires in 30 days</option>
+            <option value="" >Never expires</option>
+          </select>
+        </div>
+      </div>
 			<div id="recent-pastes-title">Recent Posts</div>
 			<div id="recent-pastes">
 				<ul></ul>
 			</div>
-      <div>
-        <input type="file" name="files[]" multiple="multiple" title="Click to add Files">
-      </div>
-      <div>
-        <label for="title">Title<input type="text" name="title" /></label>
-      </div>
 		</div>
 
 		<div id="linenos"></div>
