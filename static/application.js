@@ -200,6 +200,13 @@ var haste = function(appName, options) {
   var fileUploadOpts = {
     url: 'docs',
     dataType: 'json',
+    onBeforeUpload: function (pos, fd) {
+      var expire = $('#documentExpiration').val();
+      if (expire !== '') {
+        expire = new Date(new Date().getTime() + parseInt(expire, 10) * 60000).getTime();
+      }
+      fd.append('expire', expire);
+    },
     onUploadSuccess: function(id, data) {
       var ext = '';
       var extIndex = data.metadata.name.lastIndexOf('.');
