@@ -2,6 +2,8 @@
 
 var haste_document = function() {
   this.locked = false;
+  $(".editing").show();
+  $(".metas").hide();
 };
 
 // Escapes HTML tag characters
@@ -21,6 +23,8 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
     _this.locked = true;
     _this.key = key;
     _this.data = "URL Redirect";
+    $(".editing").hide();
+    $(".metas").show();
 
     var high = { value: _this.htmlEscape(_this.data) };
 
@@ -45,6 +49,8 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         _this.locked = true;
         _this.key = key;
         _this.data = data;
+        $(".editing").hide();
+        $(".metas").show();
 
         try {
           var high;
@@ -61,12 +67,13 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         }
 
         callback({
-          name: data.name,
-          name: xhr.getResponseHeader('x-haste-name'),
-          expire: xhr.getResponseHeader('x-haste-expire'),
-          value: high.value,
-          key: key,
-          language: high.language || lang,
+          name:      data.name,
+          name:      xhr.getResponseHeader('x-haste-name'),
+          expire:    xhr.getResponseHeader('x-haste-expire'),
+          time:      xhr.getResponseHeader('x-haste-time'),
+          value:     high.value,
+          key:       key,
+          language:  high.language || lang,
           lineCount: data.split("\n").length
         });
       },
@@ -80,17 +87,20 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
     type: 'head',
     success: function(data, status, xhr) {
       var metadata = {
-        key: xhr.getResponseHeader('x-haste-key'),
-        name: xhr.getResponseHeader('x-haste-name'),
-        expire: xhr.getResponseHeader('x-haste-expire'),
-        size: xhr.getResponseHeader('x-haste-size'),
-        syntax: xhr.getResponseHeader('x-haste-syntax'),
+        key:      xhr.getResponseHeader('x-haste-key'),
+        name:     xhr.getResponseHeader('x-haste-name'),
+        expire:   xhr.getResponseHeader('x-haste-expire'),
+        time:     xhr.getResponseHeader('x-haste-time'),
+        size:     xhr.getResponseHeader('x-haste-size'),
+        syntax:   xhr.getResponseHeader('x-haste-syntax'),
         mimetype: xhr.getResponseHeader('x-haste-mimetype'),
         encoding: xhr.getResponseHeader('x-haste-encoding'),
-        time: xhr.getResponseHeader('x-haste-time')
+        time:     xhr.getResponseHeader('x-haste-time')
       };
       publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
+      haste.$documentTitle.html(metadata.name || metadata.key);
       haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
+      haste.$createDate.html(metadata.time === null ? '' : 'Created on ' + new Date(parseInt(metadata.time, 10)).toLocaleString());
       haste.$expireDate.html(metadata.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(metadata.expire, 10)).toLocaleString());
       if (metadata.mimetype.indexOf('text') > -1) {
         parseResponseAsText();
@@ -104,6 +114,8 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
 
         metadata.locked = true;
         haste.doc = metadata;
+        $(".editing").hide();
+        $(".metas").show();
 
         haste.updateRecents();
         haste.setViewNonTextDocMenu();
@@ -177,6 +189,7 @@ var haste = function(appName, options) {
   this.$preview = $('#preview');
   this.$documentTitle = $('#documentTitle');
   this.$publicUrl = $('#publicUrl');
+  this.$createDate = $('#createDate');
   this.$expireDate = $('#expireDate');
   this.options = options;
   this.configureShortcuts();
@@ -220,15 +233,21 @@ haste.prototype.showMessage = function(msg, cls) {
 // Show the light key
 haste.prototype.setNewDocMenu = function() {
   this.enableMenuItems(['new', 'save', 'irc']);
+  $(".editing").show();
+  $(".metas").hide();
 };
 
 // Show the full key
 haste.prototype.setViewTextDocMenu = function() {
   this.enableMenuItems(['new', 'edit', 'download', 'irc', 'delete']);
+  $(".editing").hide();
+  $(".metas").show();
 };
 
 haste.prototype.setViewNonTextDocMenu = function() {
   this.enableMenuItems(['new', 'download', 'irc', 'delete']);
+  $(".editing").hide();
+  $(".metas").show();
 };
 
 haste.prototype.disableMenuItems = function(disable) {
@@ -403,6 +422,7 @@ haste.prototype.loadDocument = function(key) {
       publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
       _this.$documentTitle.html(ret.name || ret.key);
       _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
+      _this.$createDate.html(ret.time === null ? '' : 'Created on ' + new Date(parseInt(ret.time, 10)).toLocaleString());
       _this.$expireDate.html(ret.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(ret.expire, 10)).toLocaleString());
     }
     else {

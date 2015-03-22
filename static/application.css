@@ -42,7 +42,8 @@ textarea {
 	position:fixed;
 	left:0;
 	top:0;
-	width:170px;
+	width: 200px;
+  border-right: 1px solid #9d9d9d;
 }
 
 #textcontent {
@@ -89,7 +90,7 @@ textarea {
 	background: transparent !important; /* don't hide hastebox */
 }
 
-#recent-pastes-title {
+#recent-pastes-title, #sidebar .subtitle {
 	text-align:center;
 	margin:10px;
 }
@@ -221,4 +222,17 @@ textarea {
 
 #messages li.error {
 	background:rgba(102,8,0,0.8);
+}
+
+#sidebar input[type=text], #sidebar select {
+  background: #002b36 none repeat scroll 0 0;
+  border: 1px solid #9d9d9d;
+  border-radius: 0.25em;
+  color: #9d9d9d;
+  margin: 0.5em;
+  padding: 0.25em;
+}
+#sidebar input[type=file] {
+  margin: 0.5em;
+  color: transparent;
 }
