@@ -126,6 +126,9 @@ haste_document.prototype.save = function(data, callback) {
     data: data,
     dataType: 'json',
     contentType: 'application/json; charset=utf-8',
+    headers: {
+      'x-haste-name': $("[name=title]").val(),
+    },
     success: function(res) {
       _this.locked = true;
       _this.key = res.key;
@@ -315,6 +318,7 @@ haste.prototype.newDocument = function() {
     this.focus();
   });
   this.removeLineNumbers();
+  $("[name=title]").val('');
 };
 
 // Map of common extensions
