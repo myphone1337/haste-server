@@ -1,6 +1,6 @@
 {
   "name": "haste",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Private Pastebin Server - Wrapper for CozyCloud",
   "keywords": [

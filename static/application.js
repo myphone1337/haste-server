@@ -530,7 +530,7 @@ haste.prototype.configureButtons = function() {
       shortcutDescription: 'ctrl + d',
       action: function() {
         if (_this.doc.key) {
-          window.location.assign('docs/' + _this.doc.key);
+          window.open(window.location.toString().replace(/[^\/]*$/, 'docs/' + _this.doc.key));
         }
       }
     },
