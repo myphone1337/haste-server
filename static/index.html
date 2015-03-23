@@ -1,70 +1,71 @@
 <!DOCTYPE html>
 <html>
 
-	<head>
-		<meta charset="utf-8"/>
+  <head>
+    <meta charset="utf-8"/>
 
-		<title>hastebin</title>
+    <title>hastebin</title>
 
-		<link rel="stylesheet" type="text/css" href="solarized_dark-8.2.css"/>
-		<link rel="stylesheet" type="text/css" href="application.css"/>
+    <link rel="stylesheet" type="text/css" href="solarized_dark-8.2.css"/>
+    <link rel="stylesheet" type="text/css" href="application.css"/>
+    <link rel="stylesheet" href="font/style.css"></head>
 
-		<script type="text/javascript" src="jquery-2.1.1.min.js"></script>
-		<script type="text/javascript" src="highlight-8.2.min.js"></script>
-		<script type="text/javascript" src="dmuploader.js"></script>
-		<script type="text/javascript" src="application.js"></script>
+    <script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="highlight-8.2.min.js"></script>
+    <script type="text/javascript" src="dmuploader.js"></script>
+    <script type="text/javascript" src="application.js"></script>
 
-		<meta name="robots" content="noindex,nofollow"/>
+    <meta name="robots" content="noindex,nofollow"/>
 
-		<script type="text/javascript">
-			hljs.initHighlightingOnLoad();
-			var app = null;
-			// Handle pops
-			var handlePop = function(evt) {
-				var path = evt.target.location.pathname.split('/').pop();
-				if (path === '') { app.newDocument(true); }
-				else { app.loadDocument(path); }
-			};
-			// Set up the pop state to handle loads, skipping the first load
-			// to make chrome behave like others:
-			// http://code.google.com/p/chromium/issues/detail?id=63040
-			setTimeout(function() {
-				window.onpopstate = function(evt) {
-					try { handlePop(evt); } catch(err) { /* not loaded yet */ }
-				};
-			}, 1000);
-			// Construct app and load initial path
-			$(function() {
-				app = new haste('hastebin');
-				handlePop({ target: window });
-			});
-		</script>
+    <script type="text/javascript">
+      hljs.initHighlightingOnLoad();
+      var app = null;
+      // Handle pops
+      var handlePop = function(evt) {
+        var path = evt.target.location.pathname.split('/').pop();
+        if (path === '') { app.newDocument(true); }
+        else { app.loadDocument(path); }
+      };
+      // Set up the pop state to handle loads, skipping the first load
+      // to make chrome behave like others:
+      // http://code.google.com/p/chromium/issues/detail?id=63040
+      setTimeout(function() {
+        window.onpopstate = function(evt) {
+          try { handlePop(evt); } catch(err) { /* not loaded yet */ }
+        };
+      }, 1000);
+      // Construct app and load initial path
+      $(function() {
+        app = new haste('hastebin');
+        handlePop({ target: window });
+      });
+    </script>
 
-	</head>
+  </head>
 
-	<body>
-		<ul id="messages"></ul>
+  <body>
+    <ul id="messages"></ul>
 
-		<div id="sidebar">
-			<div id="key">
-				<div id="box1">
-					<a href="readme.md" class="logo"></a>
-				</div>
-				<div id="box2">
-					<div class="save function"></div>
-					<div class="new function"></div>
-					<div class="edit function"></div>
-					<div class="download function"></div>
-					<div class="delete function"></div>
+    <div id="sidebar">
+      <div id="key">
+        <div id="box1">
+          <a href="readme.md" class="logo"></a>
+        </div>
+        <div id="box2">
+          <div class="new function"     ><span class="icon-file"></span></div>
+          <div class="save function"    ><span class="icon-cloud-upload"></span></div>
+          <div class="download function"><span class="icon-cloud-download"></span></div>
+          <div class="edit function"    ><span class="icon-pencil"></span></div>
+          <div class="delete function"  ><span class="icon-remove"></span></div>
           <!--
-					<div class="irc function"></div>
+          <div class="irc function"></div>
           -->
-				</div>
-				<div id="box3">
-					<div class="label">&nbsp;</div>
-					<div class="shortcut">&nbsp;</div>
-				</div>
-			</div>
+        </div>
+        <div id="box3">
+          <div class="label">&nbsp;</div>
+          <div class="shortcut">&nbsp;</div>
+        </div>
+      </div>
 
       <div class="metas">
         <div class="subtitle">Public URL</div>
@@ -80,7 +81,7 @@
         </div>
         <div class="subtitle">Options</div>
         <div>
-          <input type="text" name="title" id="documentTitle" size="16" placeholder="Title" /></label>
+          <input type="text" name="title" id="documentTitle" size="17" placeholder="Title" /></label>
         </div>
         <div>
           <select id="documentExpiration">
@@ -94,22 +95,22 @@
           </select>
         </div>
       </div>
-			<div id="recent-pastes-title">Recent Posts</div>
-			<div id="recent-pastes">
-				<ul></ul>
-			</div>
-		</div>
+      <div id="recent-pastes-title">Recent Posts</div>
+      <div id="recent-pastes">
+        <ul></ul>
+      </div>
+    </div>
 
-		<div id="linenos"></div>
-		<div id="textcontent">
-			<div id="pastebin">
-				<pre id="box" style="display:none;" tabindex="0"><code id="boxcode"></code></pre>
-				<textarea spellcheck="false" style="display:none;"></textarea>
-			</div>
-			<div id="preview" style="display:none;">
-			</div>
-		</div>
+    <div id="linenos"></div>
+    <div id="textcontent">
+      <div id="pastebin">
+        <pre id="box" style="display:none;" tabindex="0"><code id="boxcode"></code></pre>
+        <textarea spellcheck="false" style="display:none;"></textarea>
+      </div>
+      <div id="preview" style="display:none;">
+      </div>
+    </div>
 
-	</body>
+  </body>
 
 </html>
