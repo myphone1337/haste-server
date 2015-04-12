@@ -70,6 +70,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
           name:      data.name,
           name:      xhr.getResponseHeader('x-haste-name'),
           expire:    xhr.getResponseHeader('x-haste-expire'),
+          password:  xhr.getResponseHeader('x-haste-password'),
           time:      xhr.getResponseHeader('x-haste-time'),
           value:     high.value,
           key:       key,
@@ -90,6 +91,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         key:      xhr.getResponseHeader('x-haste-key'),
         name:     xhr.getResponseHeader('x-haste-name'),
         expire:   xhr.getResponseHeader('x-haste-expire'),
+        password: xhr.getResponseHeader('x-haste-password'),
         time:     xhr.getResponseHeader('x-haste-time'),
         size:     xhr.getResponseHeader('x-haste-size'),
         syntax:   xhr.getResponseHeader('x-haste-syntax'),
@@ -102,6 +104,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
       haste.$createDate.html(metadata.time === null ? '' : 'Created on ' + new Date(parseInt(metadata.time, 10)).toLocaleString());
       haste.$expireDate.html(metadata.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(metadata.expire, 10)).toLocaleString());
+      haste.$password.html(metadata.password ? 'Password: ' + metadata.password : 'No password');
       if (metadata.mimetype.indexOf('text') > -1) {
         parseResponseAsText();
       }
@@ -149,7 +152,8 @@ haste_document.prototype.save = function(data, callback) {
     contentType: 'application/json; charset=utf-8',
     headers: {
       'x-haste-name': $("#documentTitle").val(),
-      'x-haste-expire': expire
+      'x-haste-expire': expire,
+      'x-haste-password': $("#documentPassword").val()
     },
     success: function(res) {
       _this.locked = true;
@@ -191,6 +195,7 @@ var haste = function(appName, options) {
   this.$publicUrl = $('#publicUrl');
   this.$createDate = $('#createDate');
   this.$expireDate = $('#expireDate');
+  this.$password = $('#password');
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
@@ -206,6 +211,7 @@ var haste = function(appName, options) {
         expire = new Date(new Date().getTime() + parseInt(expire, 10) * 60000).getTime();
       }
       fd.append('expire', expire);
+      fd.append('password', $("#documentPassword").val());
     },
     onUploadSuccess: function(id, data) {
       var ext = '';
@@ -359,6 +365,7 @@ haste.prototype.newDocument = function() {
   });
   this.removeLineNumbers();
   $("#documentTitle").val('');
+  $("#documentPassword").val('');
   $("#documentExpiration").val('1440'); // 1 day
 };
 
@@ -431,6 +438,7 @@ haste.prototype.loadDocument = function(key) {
       _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
       _this.$createDate.html(ret.time === null ? '' : 'Created on ' + new Date(parseInt(ret.time, 10)).toLocaleString());
       _this.$expireDate.html(ret.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(ret.expire, 10)).toLocaleString());
+      _this.$password.html(ret.password ? 'Password: ' + ret.password : 'No password');
     }
     else {
       _this.newDocument();

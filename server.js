@@ -161,11 +161,11 @@ var apiServe = connectRoute(function(router) {
   // public URL to get documents
   router.get('public/:id', function(request, response, next) {
     var skipExpire = !!config.documents[request.params.id];
-    return documentHandler.handleGet(request, response, skipExpire);
+    return documentHandler.handleGet(request, response, skipExpire, true);
   });
   // public URL to get document metadata
   router.head('public/:id', function(request, response, next) {
-    return documentHandler.handleHead(request, response);
+    return documentHandler.handleHead(request, response, true);
   });
   // get recent documents
   router.get('recent', function(request, response, next) {
