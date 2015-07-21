@@ -18,18 +18,28 @@ var config = JSON.parse(fs.readFileSync('./config.js', 'utf8'));
 config.port = process.env.PORT || config.port || 7777;
 config.host = process.env.HOST || config.host || 'localhost';
 
+function updatePass() {
+  "use strict";
+  var pass = '';
+  while (pass.length < 32) {
+    pass += Math.random().toString(36).slice(-8);
+  }
+  config.curlPassword = pass;
+  fs.writeFileSync('./config.js', JSON.stringify(config, null, 2));
+}
+
 // Set up the logger
 if (config.logging) {
   try {
     winston.remove(winston.transports.Console);
-  } catch(er) { }
-  var detail, type;
-  for (var i = 0; i < config.logging.length; i++) {
-    detail = config.logging[i];
-    type = detail.type;
-    delete detail.type;
-    winston.add(winston.transports[type], detail);
-  }
+  } catch (er) { }
+  config.logging.forEach(function (detail) {
+    winston.add(winston.transports[detail.type], {level: detail.level, colorize: detail.colorize});
+  });
+}
+
+if (!config.curlPassword) {
+  updatePass();
 }
 
 // build the store from the config on-demand - so that we don't load it for statics
@@ -145,6 +155,28 @@ var apiServe = connectRoute(function(router) {
   router.post('docs', function(request, response, next) {
     return documentHandler.handlePost(request, response);
   });
+  // add document from public url with basic auth
+  router.post('public/docs', function(request, response, next) {
+    var auth, credentials;
+    function forbid() {
+      response.writeHead(401, {
+        'WWW-Authenticate': 'Basic realm="example"'
+      });
+      response.end();
+    }
+    auth = request.headers.authorization;
+    if (auth) {
+      credentials = new Buffer(auth.split(' ')[1], 'base64').toString().split(':');
+
+      if ((credentials[0] === 'haste') && (credentials[1] === config.curlPassword)) {
+        return documentHandler.handlePost(request, response);
+      } else {
+        forbid();
+      }
+    } else {
+      forbid();
+    }
+  });
   // get documents
   router.get('docs/:id', function(request, response, next) {
     var skipExpire = !!config.documents[request.params.id];
@@ -180,6 +212,15 @@ var apiServe = connectRoute(function(router) {
     if (ircHandler) {
       return ircHandler.handleNotify(request, response);
     }
+  });
+  router.get('pass', function(request, response, next) {
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.end(JSON.stringify({ password: config.curlPassword }));
+  });
+  router.post('pass', function(request, response, next) {
+    updatePass();
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.end(JSON.stringify({ password: config.curlPassword }));
   });
   // if the previous static-serving module didn't respond to the resource,
   // forward to next with index.html and the web client application will request the doc based on the url

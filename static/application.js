@@ -669,4 +669,33 @@ $(function() {
       }
     }
   });
+  function shellShow(evt) {
+    $.ajax('pass', {
+      type: 'get',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      success: function (res) {
+        var hostFull, host, script;
+        hostFull = window.location.protocol + '//haste:' + res.password + '@' + window.location.host;
+        host     = window.location.protocol + '//' + window.location.host;
+        script   = "haste () {\n" +
+          "  a=$(cat);\n" +
+          '  curl -X POST -s -d "$a" ' + hostFull + '/public/haste/docs | awk -F \'"\' \'{print "' + host + '/public/haste/"$4}\'' + "\n" +
+          "}";
+        window.alert(script);
+      }
+    });
+  }
+  function shellReset(evt) {
+    $.ajax('pass', {
+      type: 'post',
+      contentType: 'application/json; charset=utf-8',
+      dataType: 'json',
+      success: function (res) {
+        shellShow();
+      }
+    });
+  }
+  document.getElementById('shellShow').addEventListener('click', shellShow);
+  document.getElementById('shellReset').addEventListener('click', shellReset);
 });
