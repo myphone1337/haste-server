@@ -1,4 +1,7 @@
-///// represents a single document
+//jshint browser: true, strict: false, maxstatements: 30
+/*eslint strict:0, no-shadow: 0 */
+//jscs:disable
+/*global $: true, hljs: true */
 
 var haste_document = function() {
   this.locked = false;
@@ -8,7 +11,7 @@ var haste_document = function() {
 
 // Escapes HTML tag characters
 haste_document.prototype.htmlEscape = function(s) {
-  return (s == null ? '' : s
+  return (s === null ? '' : s
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
     .replace(/</g, '&lt;')
@@ -52,8 +55,8 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         $(".editing").hide();
         $(".metas").show();
 
+        var high;
         try {
-          var high;
           if (lang === 'txt') {
             high = { value: _this.htmlEscape(data) };
           } else if (lang) {
@@ -67,7 +70,6 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         }
 
         callback({
-          name:      data.name,
           name:      xhr.getResponseHeader('x-haste-name'),
           expire:    xhr.getResponseHeader('x-haste-expire'),
           password:  xhr.getResponseHeader('x-haste-password'),
@@ -78,7 +80,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
           lineCount: data.split("\n").length
         });
       },
-      error: function(err) {
+      error: function() {
         callback(false);
       }
     });
@@ -92,23 +94,22 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         name:     xhr.getResponseHeader('x-haste-name'),
         expire:   xhr.getResponseHeader('x-haste-expire'),
         password: xhr.getResponseHeader('x-haste-password'),
-        time:     xhr.getResponseHeader('x-haste-time'),
         size:     xhr.getResponseHeader('x-haste-size'),
         syntax:   xhr.getResponseHeader('x-haste-syntax'),
         mimetype: xhr.getResponseHeader('x-haste-mimetype'),
         encoding: xhr.getResponseHeader('x-haste-encoding'),
         time:     xhr.getResponseHeader('x-haste-time')
       };
-      publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
+      var publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
       haste.$documentTitle.html(metadata.name || metadata.key);
-      haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
+      haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>');
       haste.$createDate.html(metadata.time === null ? '' : 'Created on ' + new Date(parseInt(metadata.time, 10)).toLocaleString());
       haste.$expireDate.html(metadata.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(metadata.expire, 10)).toLocaleString());
       haste.$password.html(metadata.password ? 'Password: ' + metadata.password : 'No password');
       if (metadata.mimetype.indexOf('text') > -1) {
         parseResponseAsText();
       }
-      else if (metadata.mimetype.indexOf('url-redirect') == 0) {
+      else if (metadata.mimetype.indexOf('url-redirect') === 0) {
         parseResponseAsRedirect();
       }
       else {
@@ -236,7 +237,7 @@ haste.prototype.setTitle = function(ext) {
 
 // Show a message box
 haste.prototype.showMessage = function(msg, cls) {
-  var msgBox = $('<li class="'+(cls || 'info')+'">'+msg+'</li>');
+  var msgBox = $('<li class="' + (cls || 'info') + '">' + msg + '</li>');
   $('#messages').prepend(msgBox);
   setTimeout(function() {
     msgBox.slideUp('fast', function() { $(this).remove(); });
@@ -306,7 +307,7 @@ haste.prototype.updateRecents = function() {
   this.getRecents(function (recents) {
     var addthis = true;
     for (var i in recents) {
-      if (recents[i] == _this.doc.key) {
+      if (recents[i] === _this.doc.key) {
         addthis = false;
         break;
       }
@@ -341,7 +342,9 @@ haste.prototype.loadRecentsList = function() {
             ext = '.' + item.syntax;
           }
 
-          if (!title) title = item.key + ext;
+          if (!title) {
+            title = item.key + ext;
+          }
           var href = '' + item.key + ext;
           items += '<li><a href="' + href + '">' + title + '</a></li>';
         }
@@ -349,7 +352,7 @@ haste.prototype.loadRecentsList = function() {
       }
     });
   });
-}
+};
 
 // Remove the current document (if there is one)
 // and set up for a new one
@@ -386,7 +389,9 @@ haste.extensionMap = {
 // If not found, return the type itself - which we'll place as the extension
 haste.prototype.lookupExtensionByType = function(type) {
   for (var key in haste.extensionMap) {
-    if (haste.extensionMap[key] === type) return key;
+    if (haste.extensionMap[key] === type) {
+      return key;
+    }
   }
   return type;
 };
@@ -435,7 +440,7 @@ haste.prototype.loadDocument = function(key) {
       _this.updateRecents();
       publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
       _this.$documentTitle.html(ret.name || ret.key);
-      _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
+      _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>');
       _this.$createDate.html(ret.time === null ? '' : 'Created on ' + new Date(parseInt(ret.time, 10)).toLocaleString());
       _this.$expireDate.html(ret.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(ret.expire, 10)).toLocaleString());
       _this.$password.html(ret.password ? 'Password: ' + ret.password : 'No password');
@@ -502,7 +507,7 @@ haste.prototype.configureButtons = function() {
         _this.lockDocument(function(ret) {
           window.location.assign(ret.key);
           var publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
-          _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>')
+          _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>');
         });
       }
     },
@@ -510,7 +515,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .new'),
       label: 'New',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 78
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 78;
       },
       shortcutDescription: 'ctrl + n',
       action: function() {
@@ -521,8 +526,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .edit'),
       label: 'Edit',
       shortcut: function(evt) {
-        return _this.doc.locked
-                && (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 69;
+        return _this.doc.locked && (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 69;
       },
       shortcutDescription: 'ctrl + e',
       action: function() {
@@ -555,7 +559,7 @@ haste.prototype.configureButtons = function() {
       $where: $('#box2 .irc'),
       label: 'Notify IRC',
       shortcut: function(evt) {
-        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode == 73;
+        return (evt.ctrlKey || evt.metaKey) && !evt.shiftKey && !evt.altKey && evt.keyCode === 73;
       },
       shortcutDescription: 'ctrl + i',
       action: function() {
@@ -643,17 +647,17 @@ $(function() {
       // For browsers like Internet Explorer
       if (document.selection) {
         this.focus();
-        sel = document.selection.createRange();
+        var sel = document.selection.createRange();
         sel.text = myValue;
         this.focus();
       }
       // Mozilla and Webkit
-      else if (this.selectionStart || this.selectionStart == '0') {
+      else if (this.selectionStart || this.selectionStart === '0') {
         var startPos = this.selectionStart;
         var endPos = this.selectionEnd;
         var scrollTop = this.scrollTop;
         this.value = this.value.substring(0, startPos) + myValue +
-          this.value.substring(endPos,this.value.length);
+          this.value.substring(endPos, this.value.length);
         this.focus();
         this.selectionStart = startPos + myValue.length;
         this.selectionEnd = startPos + myValue.length;

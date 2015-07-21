@@ -1,5 +1,6 @@
-var http = require('http');
-var url = require('url');
+//jshint node: true, strict: false
+/*eslint strict:0 */
+//jscs:disable
 var fs = require('fs');
 
 var winston = require('winston');
@@ -76,7 +77,7 @@ if (config.recompressStaticAssets) {
   for (var i = 0; i < list.length; i++) {
     var item = list[i];
     if ((item.indexOf('.js') === item.length - 3) && (item.indexOf('.min.js') === -1)) {
-      dest = item.substring(0, item.length - 3) + '.min' + item.substring(item.length - 3);
+      var dest = item.substring(0, item.length - 3) + '.min' + item.substring(item.length - 3);
       var minified = uglify.minify('./static/' + item);
       fs.writeFileSync('./static/' + dest, minified.code, 'utf8');
       winston.info('compressed ' + item + ' into ' + dest);
@@ -86,7 +87,7 @@ if (config.recompressStaticAssets) {
 
 // Send the static documents into the preferred store, skipping expirations
 var path, data;
-for (var name in config.documents) {
+Object.keys(config.documents).forEach(function (name) {
   path = config.documents[name];
 
   var storeStaticDoc = function() {
@@ -107,7 +108,7 @@ for (var name in config.documents) {
       // so use a fake response object to determine finished success/failure
       var nonHttpResponse = {
         writeHead: function(code, misc) {
-          if (code == 200) {
+          if (code === 200) {
             winston.debug('loaded static document', { file: name, path: path });
           } else {
             winston.warn('failed to store static document', { file: name, path: path });
@@ -122,8 +123,7 @@ for (var name in config.documents) {
     }
   };
 
-  var nonHttpResponse = {writeHead: function(){},end: function(){}};
-  documentHandler._getStoreObject(name, true, nonHttpResponse, function(err, doc) {
+  documentHandler._getStoreObject(name, true, {writeHead: function(){}, end: function(){}}, function(err, doc) {
     if (err) {
       storeStaticDoc();
     }
@@ -131,7 +131,7 @@ for (var name in config.documents) {
       winston.verbose('not storing static document as it already exists', {name: name});
     }
   });
-}
+});
 
 var staticServe = st({
   path: './static',
