@@ -678,10 +678,15 @@ $(function() {
         var hostFull, host, script;
         hostFull = window.location.protocol + '//haste:' + res.password + '@' + window.location.host;
         host     = window.location.protocol + '//' + window.location.host;
-        script   = "haste () {\n" +
+        script   = "\n" +
+          "haste () {\n" +
           "  a=$(cat);\n" +
           '  curl -X POST -s -d "$a" ' + hostFull + '/public/haste/docs | awk -F \'"\' \'{print "' + host + '/public/haste/"$4}\'' + "\n" +
-          "}";
+          "}\n" +
+          "hastebin () {\n" +
+          "  curl -s --form \"fileupload=@$1;filename=$(basename $1)\" " + hostFull + "/public/haste/docs | awk -F '\"' '{print \"" + host + "/public/haste/\"$4}'\n" +
+          "}\n\n";
+
         window.alert(script);
       }
     });
