@@ -1,6 +1,6 @@
 {
   "name": "haste",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "description": "Private Pastebin Server - Wrapper for CozyCloud",
   "keywords": [
@@ -49,6 +49,7 @@
     "lib": "./lib"
   },
   "scripts": {
+    "postinstall": "cp config-dist.js config.js && chmod 666 config.js",
     "start": "node server.js",
     "test": "mocha -r should spec/*"
   },
