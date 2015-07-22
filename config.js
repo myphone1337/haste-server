@@ -5,7 +5,6 @@
   "maxLength": 400000,
   "staticMaxAge": 86400,
   "recompressStaticAssets": false,
-  "curlPassword": "",
   "logging": [
     {
       "level": "verbose",
