@@ -1,6 +1,6 @@
 {
   "name": "haste",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "private": true,
   "description": "Private Pastebin Server - Wrapper for CozyCloud",
   "keywords": [
@@ -56,6 +56,9 @@
   "cozy-permissions": {
     "Haste": {
       "description": "Store your snippets into Cozy data system"
+    },
+    "HasteSettings": {
+      "description": "Application settings"
     }
   },
   "cozy-displayName": "Haste",

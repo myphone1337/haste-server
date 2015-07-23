@@ -1,31 +1,42 @@
 //jshint node: true, strict: false
 /*eslint strict:0 */
 //jscs:disable
-var fs = require('fs');
-
-var winston = require('winston');
-var connect = require('connect');
-var uglify = require('uglify-js');
-
-var connectRoute = require('connect-route');
-var st = require('st');
-
-var DocumentHandler = require('./lib/document_handler');
-var IrcHandler = require('./lib/irchandler');
+var fs              = require('fs'),
+    winston         = require('winston'),
+    connect         = require('connect'),
+    uglify          = require('uglify-js'),
+    connectRoute    = require('connect-route'),
+    st              = require('st'),
+    DocumentHandler = require('./lib/document_handler'),
+    IrcHandler      = require('./lib/irchandler'),
+    Settings        = require('./lib/settings'),
+    config, settings, settingsStore, Store, preferredStore;
 
 // Load the configuration and set some defaults
-var config = JSON.parse(fs.readFileSync('./config.js', 'utf8'));
+config = JSON.parse(fs.readFileSync('./config.js', 'utf8'));
 config.port = process.env.PORT || config.port || 7777;
 config.host = process.env.HOST || config.host || 'localhost';
 
-function updatePass() {
-  "use strict";
+function generatePassword() {
   var pass = '';
   while (pass.length < 32) {
     pass += Math.random().toString(36).slice(-8);
   }
-  config.curlPassword = pass;
-  fs.writeFileSync('./config.js', JSON.stringify(config, null, 2));
+  return pass;
+}
+function updatePass(cb) {
+  "use strict";
+  settings.curlPassword = generatePassword();
+  settingsStore.set(settings, function (err, res) {
+    if (err) {
+      winston.error(err);
+    } else {
+      settings = res;
+    }
+    if (typeof cb === 'function') {
+      cb(settings);
+    }
+  });
 }
 
 // Set up the logger
@@ -38,9 +49,20 @@ if (config.logging) {
   });
 }
 
-if (!config.curlPassword) {
-  updatePass();
-}
+settingsStore = new Settings();
+settingsStore.get(function (err, res) {
+  if (err) {
+    winston.error(err);
+  } else {
+    if (res.length === 0) {
+      // Create settings
+      settings = {};
+      updatePass();
+    } else {
+      settings = res[0];
+    }
+  }
+});
 
 // build the store from the config on-demand - so that we don't load it for statics
 if (!config.storage) {
@@ -50,8 +72,8 @@ if (!config.storage.type) {
   config.storage.type = 'redis';
 }
 
-var Store = require('./lib/document_stores/' + config.storage.type);
-var preferredStore = new Store(config.storage);
+Store = require('./lib/document_stores/' + config.storage.type);
+preferredStore = new Store(config.storage);
 
 // Pick up a key generator
 var pwOptions = config.keyGenerator || {};
@@ -168,7 +190,7 @@ var apiServe = connectRoute(function(router) {
     if (auth) {
       credentials = new Buffer(auth.split(' ')[1], 'base64').toString().split(':');
 
-      if ((credentials[0] === 'haste') && (credentials[1] === config.curlPassword)) {
+      if ((credentials[0] === 'haste') && (credentials[1] === settings.curlPassword)) {
         return documentHandler.handlePost(request, response);
       } else {
         forbid();
@@ -215,12 +237,13 @@ var apiServe = connectRoute(function(router) {
   });
   router.get('pass', function(request, response, next) {
     response.writeHead(200, { 'content-type': 'application/json' });
-    response.end(JSON.stringify({ password: config.curlPassword }));
+    response.end(JSON.stringify({ password: settings.curlPassword }));
   });
   router.post('pass', function(request, response, next) {
-    updatePass();
-    response.writeHead(200, { 'content-type': 'application/json' });
-    response.end(JSON.stringify({ password: config.curlPassword }));
+    updatePass(function (res) {
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end(JSON.stringify({ password: res.curlPassword }));
+    });
   });
   // if the previous static-serving module didn't respond to the resource,
   // forward to next with index.html and the web client application will request the doc based on the url

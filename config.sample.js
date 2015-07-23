@@ -11,8 +11,6 @@
 
   "recompressStaticAssets": true,
 
-  "curlPassword": "",
-
   "logging": [
     {
       "level": "verbose",
