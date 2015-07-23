@@ -409,12 +409,12 @@ haste.prototype.addLineNumbers = function(lineCount) {
   for (var i = 0; i < lineCount; i++) {
     h += (i + 1).toString() + '<br/>';
   }
-  $('#linenos').html(h);
+  $('#linenos div').html(h);
 };
 
 // Remove the line numbers
 haste.prototype.removeLineNumbers = function() {
-  $('#linenos').html('&gt;');
+  $('#linenos div').html('&gt;');
 };
 
 // Load a document and show it
