@@ -49,6 +49,10 @@ if (config.logging) {
   });
 }
 
+// Init settings
+settings = {
+  curlPassword:  generatePassword()
+};
 settingsStore = new Settings();
 settingsStore.get(function (err, res) {
   if (err) {
@@ -56,7 +60,6 @@ settingsStore.get(function (err, res) {
   } else {
     if (res.length === 0) {
       // Create settings
-      settings = {};
       updatePass();
     } else {
       settings = res[0];
