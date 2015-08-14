@@ -1,5 +1,5 @@
 //jshint browser: true, strict: false, maxstatements: 30
-/*eslint strict:0, no-shadow: 0 */
+/*eslint strict:0, no-shadow: 0, no-use-before-define: 0 */
 //jscs:disable
 /*global $: true, hljs: true */
 
@@ -636,10 +636,46 @@ haste.prototype.postToIrc = function(key, cb) {
   });
 };
 
-///// Tab behavior in the textarea - 2 spaces per tab
+
+/**
+ * Create modal window
+ *
+ * @param {HTML} content - The HTML content of the modal window
+ *
+ * @return {function} - a function to close the modal window
+ */
+window.modal = function (content) {
+  "use strict";
+  [document.children[0], document.body].forEach(function (e) {
+    e.style.height  = "100%";
+    e.style.width   = "100%";
+    e.style.padding = "0";
+    e.style.margin  = "0";
+  });
+  var mod  = document.createElement('div'),
+      cell = document.createElement('div'),
+      overlay = document.createElement('div');
+  mod.setAttribute('style', 'display: inline-block; max-width: 50%; max-height: 90vh; background: white; padding: 1em; border-radius: .5em; overflow: auto; box-shadow: .5em .5em .5em #000;');
+  cell.setAttribute('style', 'display:table-cell; vertical-align:middle; text-align:center');
+  overlay.setAttribute('style', 'position: fixed; top: 0; left: 0;display:table; width: 100%; height: 100%; background: rgba(0,0,0,.5)');
+  if (content instanceof Element) {
+    mod.appendChild(content);
+  } else {
+    mod.innerHTML = content;
+  }
+  cell.appendChild(mod);
+  overlay.appendChild(cell);
+  document.body.appendChild(overlay);
+  return function () {
+    document.body.removeChild(overlay);
+  };
+};
+
+// OnLoad
 $(function() {
 
   $('textarea').keydown(function(evt) {
+    // Tab behavior in the textarea - 2 spaces per tab
     if (evt.keyCode === 9) {
       evt.preventDefault();
       var myValue = '  ';
@@ -669,13 +705,14 @@ $(function() {
       }
     }
   });
+
   function shellShow(evt) {
     $.ajax('pass', {
       type: 'get',
       contentType: 'application/json; charset=utf-8',
       dataType: 'json',
       success: function (res) {
-        var hostFull, host, script;
+        var hostFull, host, script, win, closeFct;
         hostFull = window.location.protocol + '//haste:' + res.password + '@' + window.location.host;
         host     = window.location.protocol + '//' + window.location.host;
         script   = "\n" +
@@ -687,7 +724,14 @@ $(function() {
           "  curl -s --form \"fileupload=@$1;filename=$(basename $1)\" " + hostFull + "/public/haste/docs | awk -F '\"' '{print \"" + host + "/public/haste/\"$4}'\n" +
           "}\n\n";
 
-        window.alert(script);
+        win = document.getElementById('template-shell').cloneNode(true);
+        win.querySelector('.shell-code').innerHTML = script;
+        closeFct = window.modal(win);
+        win.querySelector('[name=close]').addEventListener('click', closeFct);
+        win.querySelector('[name=reset]').addEventListener('click', function () {
+          closeFct();
+          shellReset();
+        });
       }
     });
   }
@@ -702,5 +746,4 @@ $(function() {
     });
   }
   document.getElementById('shellShow').addEventListener('click', shellShow);
-  document.getElementById('shellReset').addEventListener('click', shellReset);
 });

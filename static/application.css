@@ -206,3 +206,23 @@ textarea {
   margin: 0.5em;
   color: transparent;
 }
+
+/** Templates **/
+#templates {
+  display: none;
+}
+#template-shell {
+  color: black;
+  text-align: left;
+}
+#template-shell .shell-code {
+  margin: 1em;
+  padding: 1em;
+  color: #0F0;
+  background-color: black;
+  overflow: auto;
+  max-width: 60em;
+}
+#template-shell .shell-foot {
+  text-align: right;
+}
