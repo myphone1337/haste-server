@@ -1,6 +1,6 @@
 {
   "name": "haste",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "Private Pastebin Server - Wrapper for CozyCloud",
   "keywords": [
@@ -19,7 +19,7 @@
     "basic-auth": "^1.0.0",
     "busboy": "0.2.8",
     "connect": "3.1.1",
-    "connect-route": "git://github.com/neandrake/connect-route.git#bc44be0fac3e7ccda51221c07b428a5f3594bd06",
+    "connect-route": "0.1.5",
     "cozydb": "0.0.11",
     "mime": "1.2.11",
     "printit": "^0.1.6",
