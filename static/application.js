@@ -718,10 +718,10 @@ $(function() {
         script   = "\n" +
           "haste () {\n" +
           "  a=$(cat);\n" +
-          '  curl -X POST -s -d "$a" ' + hostFull + '/public/haste/docs | awk -F \'"\' \'{print "' + host + '/public/haste/"$4}\'' + "\n" +
+          '  curl -X POST -s -d "$a" ' + hostFull + '/public/hastebin/docs | awk -F \'"\' \'{print "' + host + '/public/hastebin/"$4}\'' + "\n" +
           "}\n" +
           "hastebin () {\n" +
-          "  curl -s --form \"fileupload=@$1;filename=$(basename $1)\" " + hostFull + "/public/haste/docs | awk -F '\"' '{print \"" + host + "/public/haste/\"$4}'\n" +
+          "  curl -s --form \"fileupload=@$1;filename=$(basename $1)\" " + hostFull + "/public/hastebin/docs | awk -F '\"' '{print \"" + host + "/public/hastebin/\"$4}'\n" +
           "}\n\n";
 
         win = document.getElementById('template-shell').cloneNode(true);
