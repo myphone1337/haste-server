@@ -74,6 +74,10 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
           expire:    xhr.getResponseHeader('x-haste-expire'),
           password:  xhr.getResponseHeader('x-haste-password'),
           time:      xhr.getResponseHeader('x-haste-time'),
+          size:      xhr.getResponseHeader('x-haste-size'),
+          syntax:    xhr.getResponseHeader('x-haste-syntax'),
+          mimetype:  xhr.getResponseHeader('x-haste-mimetype'),
+          encoding:  xhr.getResponseHeader('x-haste-encoding'),
           value:     high.value,
           key:       key,
           language:  high.language || lang,
@@ -106,6 +110,10 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       haste.$createDate.html(metadata.time === null ? '' : 'Created on ' + new Date(parseInt(metadata.time, 10)).toLocaleString());
       haste.$expireDate.html(metadata.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(metadata.expire, 10)).toLocaleString());
       haste.$password.html(metadata.password ? 'Password: ' + metadata.password : 'No password');
+      haste.$metas.size.text(metadata.size || '');
+      haste.$metas.syntax.text(metadata.syntax || '');
+      haste.$metas.mime.text(metadata.mimetype || '');
+      haste.$metas.encoding.text(metadata.encoding || '');
       if (metadata.mimetype.indexOf('text') > -1) {
         parseResponseAsText();
       }
@@ -197,6 +205,12 @@ var haste = function(appName, options) {
   this.$createDate = $('#createDate');
   this.$expireDate = $('#expireDate');
   this.$password = $('#password');
+  this.$metas = {
+    size: $('.metas .metaSize'),
+    syntax: $('.metas .metaSynctax'),
+    mime: $('.metas .metaMime'),
+    encoding: $('.metas .metaEncoding')
+  };
   this.options = options;
   this.configureShortcuts();
   this.configureButtons();
@@ -444,6 +458,10 @@ haste.prototype.loadDocument = function(key) {
       _this.$createDate.html(ret.time === null ? '' : 'Created on ' + new Date(parseInt(ret.time, 10)).toLocaleString());
       _this.$expireDate.html(ret.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(ret.expire, 10)).toLocaleString());
       _this.$password.html(ret.password ? 'Password: ' + ret.password : 'No password');
+      _this.$metas.size.text(ret.size || '');
+      _this.$metas.syntax.text(ret.syntax || '');
+      _this.$metas.mime.text(ret.mimetype || '');
+      _this.$metas.encoding.text(ret.encoding || '');
     }
     else {
       _this.newDocument();
