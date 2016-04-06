@@ -1,5 +1,5 @@
 var DocumentHandler = require('../lib/document_handler');
-var Generator = require('../lib/key_generators/random');
+var Generator = require('../lib/key_generators/keygen');
 
 describe('document_handler', function() {
 

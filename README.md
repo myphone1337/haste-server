@@ -1,7 +1,7 @@
 # Haste
 
 Haste is an open-source pastebin software.  This is a port of the original
-software, hacked so it can run on [Cozy Cloud](http://cozy.io), the Personal
+software, hacked so it can run on [Cozy Cloud](https://cozy.io), the Personal
 Platform as a service.
 
 ## Basic Usage

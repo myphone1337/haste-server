@@ -1,6 +1,6 @@
 {
-  "name": "haste",
-  "version": "0.2.4",
+  "name": "hastebin",
+  "version": "0.2.5",
   "private": true,
   "description": "Private Pastebin Server - Wrapper for CozyCloud",
   "keywords": [
@@ -22,7 +22,6 @@
     "connect-route": "0.1.5",
     "cozydb": "0.0.11",
     "mime": "1.2.11",
-    "printit": "^0.1.6",
     "spirc": "0.1.4",
     "st": "0.5.1",
     "uglify-js": "2.4.15",
@@ -34,8 +33,7 @@
   },
   "bundledDependencies": [],
   "engines": {
-    "node": "0.10.31+",
-    "npm": "1.4.24+"
+    "node": ">= 0.10.0"
   },
   "bin": {
     "haste-server": "./server.js"
