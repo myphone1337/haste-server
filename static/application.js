@@ -105,7 +105,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         time:     xhr.getResponseHeader('x-haste-time')
       };
       var publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
-      haste.$documentTitle.html(metadata.name || metadata.key);
+      haste.$documentName.html(metadata.name || metadata.key);
       haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>');
       haste.$createDate.html(metadata.time === null ? '' : 'Created on ' + new Date(parseInt(metadata.time, 10)).toLocaleString());
       haste.$expireDate.html(metadata.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(metadata.expire, 10)).toLocaleString());
@@ -200,7 +200,7 @@ var haste = function(appName, options) {
   this.$recentsTitle = $('#recent-pastes-title');
   this.$pastebin = $('#pastebin');
   this.$preview = $('#preview');
-  this.$documentTitle = $('#documentTitle');
+  this.$documentName = $('#documentName');
   this.$publicUrl = $('#publicUrl');
   this.$createDate = $('#createDate');
   this.$expireDate = $('#expireDate');
@@ -453,7 +453,7 @@ haste.prototype.loadDocument = function(key) {
       _this.addLineNumbers(ret.lineCount);
       _this.updateRecents();
       publicUrl = window.location.toString().replace(/\/apps\//, '/public/');
-      _this.$documentTitle.html(ret.name || ret.key);
+      _this.$documentName.html(ret.name || ret.key);
       _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>');
       _this.$createDate.html(ret.time === null ? '' : 'Created on ' + new Date(parseInt(ret.time, 10)).toLocaleString());
       _this.$expireDate.html(ret.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(ret.expire, 10)).toLocaleString());
