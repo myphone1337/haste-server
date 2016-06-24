@@ -72,6 +72,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         callback({
           name:      xhr.getResponseHeader('x-haste-name'),
           expire:    xhr.getResponseHeader('x-haste-expire'),
+          onetime:   xhr.getResponseHeader('x-haste-onetime'),
           password:  xhr.getResponseHeader('x-haste-password'),
           time:      xhr.getResponseHeader('x-haste-time'),
           size:      xhr.getResponseHeader('x-haste-size'),
@@ -97,6 +98,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
         key:      xhr.getResponseHeader('x-haste-key'),
         name:     xhr.getResponseHeader('x-haste-name'),
         expire:   xhr.getResponseHeader('x-haste-expire'),
+        onetime:  xhr.getResponseHeader('x-haste-onetime'),
         password: xhr.getResponseHeader('x-haste-password'),
         size:     xhr.getResponseHeader('x-haste-size'),
         syntax:   xhr.getResponseHeader('x-haste-syntax'),
@@ -109,6 +111,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       haste.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>');
       haste.$createDate.html(metadata.time === null ? '' : 'Created on ' + new Date(parseInt(metadata.time, 10)).toLocaleString());
       haste.$expireDate.html(metadata.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(metadata.expire, 10)).toLocaleString());
+      haste.$onetime.html(metadata.onetime === 'on' ? 'Deleted after read' : '');
       haste.$password.html(metadata.password ? 'Password: ' + metadata.password : 'No password');
       haste.$metas.size.text(metadata.size || '');
       haste.$metas.syntax.text(metadata.syntax || '');
@@ -162,6 +165,7 @@ haste_document.prototype.save = function(data, callback) {
     headers: {
       'x-haste-name': $("#documentTitle").val(),
       'x-haste-expire': expire,
+      'x-haste-onetime': $("#documentOnetime").val(),
       'x-haste-password': $("#documentPassword").val()
     },
     success: function(res) {
@@ -204,6 +208,7 @@ var haste = function(appName, options) {
   this.$publicUrl = $('#publicUrl');
   this.$createDate = $('#createDate');
   this.$expireDate = $('#expireDate');
+  this.$onetime = $('#onetime');
   this.$password = $('#password');
   this.$metas = {
     size: $('.metas .metaSize'),
@@ -226,6 +231,7 @@ var haste = function(appName, options) {
         expire = new Date(new Date().getTime() + parseInt(expire, 10) * 60000).getTime();
       }
       fd.append('expire', expire);
+      fd.append('onetime', $("#documentOnetime").val());
       fd.append('password', $("#documentPassword").val());
     },
     onUploadSuccess: function(id, data) {
@@ -457,6 +463,7 @@ haste.prototype.loadDocument = function(key) {
       _this.$publicUrl.html('<a href="' + publicUrl + '" target="blank">' + publicUrl + '</a>');
       _this.$createDate.html(ret.time === null ? '' : 'Created on ' + new Date(parseInt(ret.time, 10)).toLocaleString());
       _this.$expireDate.html(ret.expire === null ? 'Never expires' : 'Expires on ' + new Date(parseInt(ret.expire, 10)).toLocaleString());
+      _this.$onetime.html(ret.onetime === 'on' ? 'Deleted after read' : '');
       _this.$password.html(ret.password ? 'Password: ' + ret.password : 'No password');
       _this.$metas.size.text(ret.size || '');
       _this.$metas.syntax.text(ret.syntax || '');
