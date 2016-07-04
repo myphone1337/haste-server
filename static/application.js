@@ -165,7 +165,7 @@ haste_document.prototype.save = function(data, callback) {
     headers: {
       'x-haste-name': $("#documentTitle").val(),
       'x-haste-expire': expire,
-      'x-haste-onetime': $("#documentOnetime").val(),
+      'x-haste-onetime': $("#documentOnetime").is( ":checked" ) ? 'on' : false,
       'x-haste-password': $("#documentPassword").val()
     },
     success: function(res) {
