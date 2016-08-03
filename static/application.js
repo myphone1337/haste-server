@@ -231,7 +231,7 @@ var haste = function(appName, options) {
         expire = new Date(new Date().getTime() + parseInt(expire, 10) * 60000).getTime();
       }
       fd.append('expire', expire);
-      fd.append('onetime', $("#documentOnetime").val());
+      fd.append('onetime', $("#documentOnetime").is( ":checked" ) ? 'on' : false);
       fd.append('password', $("#documentPassword").val());
     },
     onUploadSuccess: function(id, data) {
