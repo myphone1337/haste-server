@@ -3,14 +3,14 @@
 //jscs:disable
 /*global $: true, hljs: true */
 
-var haste_document = function() {
+var Haste_document = function() {
   this.locked = false;
   $(".editing").show();
   $(".metas").hide();
 };
 
 // Escapes HTML tag characters
-haste_document.prototype.htmlEscape = function(s) {
+Haste_document.prototype.htmlEscape = function(s) {
   return (s === null ? '' : s
     .replace(/&/g, '&amp;')
     .replace(/>/g, '&gt;')
@@ -19,7 +19,7 @@ haste_document.prototype.htmlEscape = function(s) {
 };
 
 // Get this document from the server and lock it here
-haste_document.prototype.load = function(key, haste, callback, lang) {
+Haste_document.prototype.load = function(key, haste, callback, lang) {
   var _this = this;
 
   var parseResponseAsRedirect = function() {
@@ -42,6 +42,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
   var parseResponseAsText = function() {
     haste.$pastebin.show();
     haste.$preview.hide();
+    haste.$table.hide();
 
     $.ajax('docs/' + key, {
       type: 'get',
@@ -126,6 +127,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
       else {
         haste.$pastebin.hide();
         haste.$preview.show();
+        haste.$table.hide();
 
         metadata.locked = true;
         haste.doc = metadata;
@@ -147,7 +149,7 @@ haste_document.prototype.load = function(key, haste, callback, lang) {
 };
 
 // Save this document to the server and lock it here
-haste_document.prototype.save = function(data, callback) {
+Haste_document.prototype.save = function(data, callback) {
   if (this.locked) {
     return false;
   }
@@ -204,6 +206,7 @@ var haste = function(appName, options) {
   this.$recentsTitle = $('#recent-pastes-title');
   this.$pastebin = $('#pastebin');
   this.$preview = $('#preview');
+  this.$table   = $('#recent-all');
   this.$documentName = $('#documentName');
   this.$publicUrl = $('#publicUrl');
   this.$createDate = $('#createDate');
@@ -222,6 +225,14 @@ var haste = function(appName, options) {
   this.loadRecentsList();
 
   var _this = this;
+
+  document.getElementById('tableShow').addEventListener('click', function () {
+    _this.$pastebin.hide();
+    _this.$preview.hide();
+    _this.$table.show();
+    _this.removeLineNumbers();
+  });
+
   var fileUploadOpts = {
     url: 'docs',
     dataType: 'json',
@@ -348,13 +359,17 @@ haste.prototype.loadRecentsList = function() {
       contentType: 'application/json; charset=utf-8',
       dataType: 'json',
       success: function(res) {
-        var items = '';
+        var items = '', rows = '';
+        rows = '<tr><th></th><th>Name</th><th>Creation</th><th>Expires</th><th>Size</th><th>Syntax</th><th>Mime</th><th>Encoding</th><th>Password</th><th>Auto-delete</th></tr>';
+        res.sort(function (a, b) { return a.time < b.time ? -1 : 1; });
         for (var i in res) {
           var item = res[i];
 
           var title = item.name;
           var ext = '';
           var extIndex = title.lastIndexOf('.');
+          var row = '';
+
           if (extIndex > -1) {
             ext = title.substring(extIndex);
           }
@@ -367,8 +382,17 @@ haste.prototype.loadRecentsList = function() {
           }
           var href = '' + item.key + ext;
           items += '<li><a href="' + href + '">' + title + '</a></li>';
+          row += '<td class="action" data-action="delete" data-id="' + item.key + '">🗑</td>';
+          row += '<td><a href="' + href + '">' + title + '</a></td>';
+          row += '<td>' + (typeof item.time === 'undefined' ? '' : new Date(parseInt(item.time, 10)).toLocaleString()) + '</td>';
+          row += '<td>' + (typeof item.expire === 'undefined' ? '' : new Date(parseInt(item.expire, 10)).toLocaleString()) + '</td>';
+          ['size', 'syntax', 'mimetype', 'encoding', 'password', 'onetime'].forEach(function (key) {
+            row += '<td>' + (typeof item[key] === 'undefined' ? '' : item[key]) + '</td>';
+          });
+          rows += '<tr>' + row + '</tr>';
         }
         $('#recent-pastes ul').html(items);
+        $('#recent-all').html(rows);
       }
     });
   });
@@ -379,8 +403,9 @@ haste.prototype.loadRecentsList = function() {
 haste.prototype.newDocument = function() {
   this.$pastebin.show();
   this.$preview.hide();
+  this.$table.hide();
   this.$box.hide();
-  this.doc = new haste_document();
+  this.doc = new Haste_document();
   this.setTitle();
   this.setNewDocMenu();
   this.$textarea.val('').show('fast', function() {
@@ -448,7 +473,7 @@ haste.prototype.loadDocument = function(key) {
   }
   // Ask for what we want
   var _this = this, publicUrl;
-  _this.doc = new haste_document();
+  _this.doc = new Haste_document();
   _this.doc.load(key, _this, function(ret) {
     if (ret) {
       _this.$code.html(ret.value);
@@ -731,6 +756,7 @@ $(function() {
     }
   });
 
+  // Display functions allowing to post content from shell
   function shellShow(evt) {
     $.ajax('pass', {
       type: 'get',
@@ -771,4 +797,27 @@ $(function() {
     });
   }
   document.getElementById('shellShow').addEventListener('click', shellShow);
+
+  document.getElementById('recent-all').addEventListener('click', function (e) {
+    var id;
+    if (e.target.dataset.action) {
+      id = e.target.dataset.id;
+      switch (e.target.dataset.action) {
+        case 'delete':
+          if (window.confirm("Do you really want to delete " + id)) {
+            $.ajax('docs/' + id, {
+              type: 'delete',
+              success: function(res) {
+                window.app.loadRecentsList();
+                window.app.showMessage('Document deleted', 'info');
+              },
+              error: function(res) {
+                window.app.showMessage('Error deleting document', 'error');
+              }
+            });
+          }
+          break;
+      }
+    }
+  });
 });

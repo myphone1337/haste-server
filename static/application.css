@@ -112,12 +112,15 @@ textarea {
   margin:0 0 0 -10px;
 }
 
-#recent-pastes ul li {
+#recent-pastes ul li,  #recent-all {
   margin:0 0 5px 0;
   font-family:monospace;
   font-size:10pt;
 }
 
+#recent-all {
+  width: 100%;
+}
 /* key (the logo + menu) */
 
 #box1 {
@@ -225,4 +228,8 @@ textarea {
 }
 #template-shell .shell-foot {
   text-align: right;
+}
+
+.action {
+  cursor: pointer;
 }
